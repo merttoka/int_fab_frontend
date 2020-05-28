@@ -17,15 +17,13 @@ void InitOSC(int listen_port,
   oscP5 = new OscP5(this, listen_port);
   
   myRemoteLocation = new NetAddress(send_address, send_port);
-  
-  // TODO: check if opened. 
 }  
 
 // 
 // Send message to remote location
-void SendMessage(float x, float y, float z) {
+void SendMessage(String name, float x, float y, float z) {
   /* in the following different ways of creating osc messages are shown by example */
-  OscMessage myMessage = new OscMessage("/test_pde");
+  OscMessage myMessage = new OscMessage(name);
   myMessage.add(x);
   myMessage.add(y);
   myMessage.add(z);
@@ -34,6 +32,12 @@ void SendMessage(float x, float y, float z) {
   oscP5.send(myMessage, myRemoteLocation); 
   
   PrintManager("Message sent=["+x+", "+y+", "+z+"]", 2);
+}
+void SendMessage(String name) {
+  OscMessage myMessage = new OscMessage(name);
+  oscP5.send(myMessage, myRemoteLocation); 
+  
+  PrintManager(name+" sent", 2);
 }
 
 //
