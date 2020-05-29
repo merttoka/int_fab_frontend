@@ -46,6 +46,9 @@ class Stroke {
       }
     }
     else vertices.add(pos);
+    
+    // realtime printing
+    //PrintOnline();
   }
   
   //
@@ -63,4 +66,40 @@ class Stroke {
       return vertices.get(0).z; 
     return 0;
   }
+  
+  // 
+  // SEND STROKE TO PRINTER 
+  // - after its finalized
+  public void PrintOffline() {
+    for(int i=0; i<vertices.size(); i++) {
+      if(i==0) {
+        // extrude
+        continue;
+      }
+      if(i==vertices.size()-1) {
+        // retract
+        continue;
+      }
+      // 
+      // calculate extrusion amount based on speed to next point
+      
+    }
+  }
+  // - in realtime
+  public void PrintOnline() {
+    int len = vertices.size();
+    if (len == 1) {
+      // extrude
+    }
+    else if(len > 1) {
+      PVector pos = vertices.get(len-1);
+      PVector ppos = vertices.get(len-2); // prevpos
+      // calculate extrusion amount based on speed
+    }
+    // len == 0   . donothing
+    // len == 1   . extrude material on the pos
+    // len == ..  . // extrude amount and speed to next point
+    // how to retract?
+  }
+  
 }

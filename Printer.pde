@@ -83,7 +83,7 @@ class Printer {
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
       float h = s.GetHeight();
-      s.c = color(160, 255, 255, ((h>current_height-.5*layer_height && h<current_height+.5*layer_height) ? 255 : 50));
+      s.c = color(160, 255, 255, (h == current_height ? 255 : 50));
       s.Draw();
     }
     //hint(DISABLE_STROKE_PERSPECTIVE);
@@ -100,23 +100,19 @@ class Printer {
   // onpress
   Stroke temp=null;
   public void StartStroke() {
-    if(__isDrawMode) {
-      temp = new Stroke();
-      strokes.add(temp);
-    }
+    temp = new Stroke();
+    strokes.add(temp);
   }
   // ondrag
   public void CollectStroke() {
-    if(__isDrawMode) {
-      if(temp != null && strokes.size() >= 1) {
-        PVector wc = MousePointInWorldCoordinates();
-        if (wc!=null)   strokes.get(strokes.size()-1).AddVertex(w2b(wc.x), w2b(wc.y), w2b(wc.z));
-      }
+    if(temp != null && strokes.size() >= 1) {
+      PVector wc = MousePointInWorldCoordinates();
+      if (wc!=null)   strokes.get(strokes.size()-1).AddVertex(w2b(wc.x), w2b(wc.y), current_height);
     }
   }
   // onrelease
   public void EndStroke() {
-    if(__isDrawMode) temp = null;
+    temp = null;
   }
   //////////////////////////////////////////////  
   
@@ -138,11 +134,12 @@ class Printer {
     }
   }
   
+  //
   void UpdateWheelHandler() {
-    if(__isDrawMode) {
+    if(__isAltDown) {
       cam.setWheelHandler(new PeasyWheelHandler(){
          public void handleWheel(final int wheel){
-           MoveZ(wheel);
+           MoveZ(-wheel);
            // update label
            layerlabel.setText(GetLayerLabelText());
          }
@@ -153,13 +150,12 @@ class Printer {
     }
   }
   
-  
+  //
   public PVector MousePointInWorldCoordinates() {
     if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
       PVector hit = new PVector();
       if (bb_current.CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
         // in world coordinates
-        //println(hit.x, hit.y, hit.z);
         return hit; 
       }
     }

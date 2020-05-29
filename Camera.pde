@@ -48,8 +48,3 @@ PVector CameraPosition() {
   float[] arr = cam.getPosition();
   return new PVector(arr[0], arr[1], arr[2]);
 }
-
-// custom handler
-//public interface PeasyDragHandler {
-//    public void handleDrag(final double dx, final double dy);
-//}

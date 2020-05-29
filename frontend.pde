@@ -9,17 +9,19 @@ void setup() {
   colorMode(HSB);
   smooth();
   
+  //
   p = new Printer();
   
+  //
   InitCamera();
-  InitOSC(12000, "127.0.0.1", 5876);
   InitGUI();
+  InitOSC(12000, "127.0.0.1", 5876);
 }
 
 void draw() {
   background(background); 
   scale(1,-1,1);                             // flip-y
-  select.captureViewMatrix((PGraphics3D)g);  // feed selection obj
+  select.captureViewMatrix((PGraphics3D)g);  // feed selection object with viewmatrix
   
   // update printer environment variables
   p.Update();
