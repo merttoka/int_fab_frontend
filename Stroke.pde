@@ -1,5 +1,6 @@
 
 float max_stroke_height = 0;
+float smooth_stroke = 3.01;
 
 //
 //
@@ -14,7 +15,7 @@ class Stroke {
   
   // rendering
   color c = color(0, 255, 255);
-  float stroke_weight = 3;
+  float stroke_weight = 4;
   
   //
   public Stroke() {
@@ -36,14 +37,21 @@ class Stroke {
   // stores point in bed coordinates
   public void AddVertex(float x, float y, float z) {
     if(z>max_stroke_height) max_stroke_height=z;
-    vertices.add(new PVector(x,y,z));
+    
+    PVector pos = new PVector(x,y,z);
+    if(vertices.size() > 0) {
+      PVector prev = vertices.get(vertices.size()-1);
+      if(prev.dist(pos) > smooth_stroke) { // if its not too close to the previous vertex
+        vertices.add(pos);    
+      }
+    }
+    else vertices.add(pos);
   }
   
   //
   public void Draw() {
     UpdateShape();
     
-    //shape.scale(b2w(1)); // scale to world coordinates for rendering
     shape.setStroke(c);
     shape.setStrokeWeight(stroke_weight);
     shape(this.shape, 0, 0);

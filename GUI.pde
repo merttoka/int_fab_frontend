@@ -19,6 +19,8 @@ void InitGUI() {
 void DrawGUI() {
   hint(DISABLE_DEPTH_TEST);
   cam.beginHUD();
+  fill(0, 150);
+  rect(0, 0, 70,160);
   cp5.draw();
   cam.endHUD();
   hint(ENABLE_DEPTH_TEST);
@@ -39,7 +41,7 @@ void AddViews() {
    .setSize(50,50);
   layerlabel = cp5.addTextlabel("layer_height")
    .setText(GetLayerLabelText())
-   .setPosition(10,75);
+   .setPosition(7,75);
 }
 
 //

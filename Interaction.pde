@@ -47,16 +47,13 @@ void mouseReleased() {
 boolean __isDrawMode = false;
 // 
 void keyPressed(KeyEvent e) {
-  // if (e.isControlDown() && e.getKey() == 16) //ctrl+p
   if(key == ' ') {
     __isDrawMode = !__isDrawMode;
     if(__isDrawMode) {
-      background = color(80);
       cam.setLeftDragHandler(null);
       cam.setRightDragHandler(null);
     }
     else {
-      background = color(30);
       cam.setLeftDragHandler(rotateHandler);
       cam.setRightDragHandler(zoomHandler);
     }

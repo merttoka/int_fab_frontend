@@ -19,8 +19,6 @@ float bar_depth = 20;      // bar that holds the nozzle
 //
 // Printer class that handles all paths
 class Printer {
-  //
-  BBox bb;
   
   // Printer limits xy
   float max_xy = safe_bed_size, min_xy = 0;
@@ -49,7 +47,7 @@ class Printer {
   void Update() {
     bb_current.UpdateMax(b2w(bed_size), b2w(bed_size), b2w(current_height));
     
-    CaptureDraw();
+    UpdateWheelHandler();
   }
   
   //
@@ -66,14 +64,16 @@ class Printer {
     popMatrix();
     
     // draw current drawing plane
-    pushMatrix();
-    hint(DISABLE_DEPTH_TEST);
-    translate(0,0,b2w(current_height));
-    stroke(30);
-    fill(140, 240, 240, 50);
-    rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
-    hint(ENABLE_DEPTH_TEST);
-    popMatrix();
+    if(__isDrawMode) {
+      pushMatrix();
+      hint(DISABLE_DEPTH_TEST);
+      translate(0,0,b2w(current_height));
+      stroke(30);
+      fill(140, 240, 240, 50);
+      rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
+      hint(ENABLE_DEPTH_TEST);
+      popMatrix();
+    }
     
     // draw a box for mouse cursor
     DrawMouseCursor();
@@ -83,10 +83,7 @@ class Printer {
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
       float h = s.GetHeight();
-      if(h>0 && h <= current_height)
-        s.c = color(30, (int)map(h, 0, current_height, 30, 255));
-      else if(h>0 && h > current_height)
-        s.c = color(30, (int)map(h, current_height, max_stroke_height, 255, 30));
+      s.c = color(160, 255, 255, ((h>current_height-.5*layer_height && h<current_height+.5*layer_height) ? 255 : 50));
       s.Draw();
     }
     //hint(DISABLE_STROKE_PERSPECTIVE);
@@ -97,6 +94,9 @@ class Printer {
     popMatrix();
   }
   
+  // DRAWING FUNCTIONS
+  /////////////////////
+  //
   // onpress
   Stroke temp=null;
   public void StartStroke() {
@@ -118,7 +118,7 @@ class Printer {
   public void EndStroke() {
     if(__isDrawMode) temp = null;
   }
-    
+  //////////////////////////////////////////////  
   
   //
   public void MoveXY(float x, float y) {
@@ -138,6 +138,22 @@ class Printer {
     }
   }
   
+  void UpdateWheelHandler() {
+    if(__isDrawMode) {
+      cam.setWheelHandler(new PeasyWheelHandler(){
+         public void handleWheel(final int wheel){
+           MoveZ(wheel);
+           // update label
+           layerlabel.setText(GetLayerLabelText());
+         }
+      });    
+    }
+    else {
+      cam.setWheelHandler(wheelHandler);
+    }
+  }
+  
+  
   public PVector MousePointInWorldCoordinates() {
     if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
       PVector hit = new PVector();
@@ -149,13 +165,6 @@ class Printer {
     }
     return null;
   }
-  
-  void CaptureDraw() {
-    if(__isDrawMode) {
-      // x,y,z
-      // z is height
-    }
-  }
 }
 
 
@@ -164,12 +173,14 @@ void DrawMouseCursor() {
   if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
     PVector hit = new PVector();
     if (p.bb_current.CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
-      // in world coordinates
-      //println(hit.x, hit.y, hit.z);
+      // hit is in world coordinates
       pushMatrix();
+      pushStyle();
       translate(hit.x, hit.y, hit.z);
-      fill(255);
-      box(10);
+      noStroke();
+      fill(0, 150);
+      ellipse(0,0,10*b2w(nozzle_radius),10*b2w(nozzle_radius));
+      popStyle();
       popMatrix();
     }
   }
