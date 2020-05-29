@@ -3,40 +3,67 @@
 
 // MOUSE CONTROLS
 // 
-void mousePressed() {
-  if(mouseButton == RIGHT)
-    drawingManager.stroke(50,249,150);
-  else if (mouseButton == LEFT) {
-    drawingManager.stroke(249,55,150);
-    SendMessage("/extract");
-  }
-  shape = drawingManager.addShape();
-}
-void mouseReleased() {
-  if (mouseButton == LEFT) {
-    SendMessage("/retract");
-  }
+
+void mousePressed() { 
+  if(mouseButton != CENTER) p.StartStroke();
 }
 void mouseDragged() {
-  shape.addVertex(mouseX,mouseY); 
-  
-  String name = "/move";
-  int max = 220, min = 0;
-  float x = constrain(map(mouseX, 0, width, min, max), min, max);
-  float y = constrain(map(mouseY, 0, height, max, min), min, max);
-  if(mouseButton == LEFT) 
-    name = "/extrude_move";
-  else if(mouseButton == RIGHT)
-    name = "/just_move";
-  
-  SendMessage(name, x, y, 0.4);
+  if(mouseButton != CENTER) p.CollectStroke();
 }
+void mouseReleased() {
+  if(mouseButton != CENTER) p.EndStroke();
+}
+
+//void mousePressed() {
+  //if(mouseButton == RIGHT)
+    //drawingManager.stroke(50,249,150);
+  //else if (mouseButton == LEFT) {
+    //drawingManager.stroke(249,55,150);
+    //SendMessage("/extrude");
+  //}
+  //shape = drawingManager.addShape();
+//}
+//void mouseReleased() {
+  //if (mouseButton == LEFT) {
+    //SendMessage("/retract");
+  //}
+  //last_pos = pos.copy();
+//}
+//void mouseDragged() {
+  //shape.addVertex(mouseX,mouseY); 
+  
+  //String name = "/move";
+  ////last_pos = pos = ScreenToBedCoordinates();
+  //if(mouseButton == LEFT) 
+  //  name = "/move/extrude";
+  //else if(mouseButton == RIGHT)
+  //  name = "/move";
+  
+  //SendMessage(name, pos.x, pos.y, pos.z);
+//}
 
 // KEYBOARD CONTROLS
 //
-void keyPressed() {
-   if(key == 'c'){
-    drawingManager.clear();
-    background(30);
+boolean __isDrawMode = false;
+// 
+void keyPressed(KeyEvent e) {
+  // if (e.isControlDown() && e.getKey() == 16) //ctrl+p
+  if(key == ' ') {
+    __isDrawMode = !__isDrawMode;
+    if(__isDrawMode) {
+      background = color(80);
+      cam.setLeftDragHandler(null);
+      cam.setRightDragHandler(null);
+    }
+    else {
+      background = color(30);
+      cam.setLeftDragHandler(rotateHandler);
+      cam.setRightDragHandler(zoomHandler);
+    }
   }
+  if(key == 't' || key == 'T') {
+    TopView();
+  }
+  
 }
+////////////////////////////////

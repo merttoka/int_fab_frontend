@@ -1,24 +1,35 @@
-import drawing.library.*;
+Printer p;
 
-DrawingManager drawingManager;
-DShape shape;
+color background = color(30);
 
 void setup() {
-  size(400, 400, P3D);
-  //fullScreen(P3D, 3);
+  size(800, 800, P3D); //fullScreen(P3D, 3);
+  colorMode(HSB);
+  smooth();
   
-  frameRate(15);
+  // 
+  p = new Printer();
   
-  //InitCamera();
+  InitCamera();
   InitOSC(12000, "127.0.0.1", 5876);
-  
-  background(30);
-  drawingManager = new DrawingManager(this);
-  drawingManager.stroke(50,249,150);
+  InitGUI();
 }
 
-
 void draw() {
-  //fill(255, 200);
-  //box(50);
+  background(background); 
+  scale(1,-1,1); // flip-y
+  select.captureViewMatrix((PGraphics3D)g);
+  
+  // update printer environment variables
+  p.Update();
+  
+  
+  
+  
+  
+  // draws printer environment
+  p.Draw();
+ 
+  // draws the UI
+  DrawGUI();
 }

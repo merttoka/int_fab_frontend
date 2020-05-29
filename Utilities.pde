@@ -28,3 +28,55 @@ void PrintManager(String message, int level) {
   
   println(prefix+" "+message+" ("+ts+")");
 }
+
+//
+// Draws the X,Y,Z lines with R,G,B respectively
+void DrawGizmo(float scale, float alpha, boolean drawPlanes) {
+  pushStyle();
+
+  colorMode(HSB);
+  float planeScale = scale * 0.6;
+  float planeOpacity = alpha*0.5;  
+  rectMode(CORNER);
+  strokeWeight(5);
+  pushMatrix();
+  
+  // xy plane
+  if(drawPlanes){
+    noStroke();
+    fill(0,200,200,planeOpacity);
+    rect(0,0,planeScale,planeScale);
+  }
+  // x axis 
+  stroke(0,200,200,alpha);
+  line(0,0,0, scale, 0, 0);
+  
+  // yz plane
+  if(drawPlanes){
+    pushMatrix();
+    rotateY(-PI/2);
+    noStroke();
+    fill(255/3,200,200,planeOpacity);
+    rect(0,0,planeScale,planeScale);
+    popMatrix();
+  }
+  // y axis
+  stroke(255/3,200,200,alpha);
+  line(0,0,0, 0, scale, 0);
+  
+  // xz plane
+  if(drawPlanes){
+    pushMatrix();
+    rotateX(PI/2);
+    noStroke();
+    fill(255*2/3,200,200,planeOpacity);
+    rect(0,0,planeScale,planeScale);
+    popMatrix();
+  }
+  // z axis
+  stroke(255*2/3,200,200,alpha);
+  line(0,0,0, 0, 0, scale);
+  
+  popMatrix();
+  popStyle();
+}
