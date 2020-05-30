@@ -7,9 +7,10 @@ float smooth_stroke = 3.01;
 class Stroke {
 
   // 
+  // vertices in bed coordinates
   ArrayList<PVector> vertices = new ArrayList<PVector>();
   
-  //
+  // shape hold the world coordinates
   PShape shape;
   BBox bb;
   
@@ -47,13 +48,15 @@ class Stroke {
     }
     else vertices.add(pos);
     
+    // update the pshape
+    UpdateShape();
+    
     // realtime printing
     //PrintOnline();
   }
   
   //
   public void Draw() {
-    UpdateShape();
     
     shape.setStroke(c);
     shape.setStrokeWeight(stroke_weight);
@@ -70,19 +73,27 @@ class Stroke {
   // 
   // SEND STROKE TO PRINTER 
   // - after its finalized
-  public void PrintOffline() {
+  public void PrintOffline(float speed) {
     for(int i=0; i<vertices.size(); i++) {
+      PVector point = vertices.get(i);
       if(i==0) {
-        // extrude
+        //PrintManager("extrude", 3);
+        
+        SendMessage("/move", point.x, point.y, point.z);
+        SendMessage("/extrude");
         continue;
       }
       if(i==vertices.size()-1) {
-        // retract
+        //PrintManager("retract", 3);
+        
+        SendMessage("/retract");
         continue;
       }
       // 
       // calculate extrusion amount based on speed to next point
+      //PrintManager("print", 3);
       
+      SendMessage("/move/extrude", point.x, point.y, point.z);
     }
   }
   // - in realtime

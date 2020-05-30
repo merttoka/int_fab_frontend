@@ -3,7 +3,7 @@ float b2w_ratio = 2;
 // translate real coordinates (bed) to processing coordinates (world) 
 float b2w(float b) { return b2w_ratio*b; }
 // translate processing coordinates (world) to real coordinates (bed) 
-float w2b(float w) { return (1/b2w_ratio)*w; }
+float w2b(float w) { return w/b2w_ratio; }
 
 // 
 // dimensions for real objects on the machine (in mm)
@@ -45,9 +45,9 @@ class Printer {
   //
   // fixed?
   void Update() {
+    UpdateWheelHandler();
     bb_current.UpdateMax(b2w(bed_size), b2w(bed_size), b2w(current_height));
     
-    UpdateWheelHandler();
   }
   
   //
@@ -112,17 +112,20 @@ class Printer {
   }
   // onrelease
   public void EndStroke() {
+    // actual printing
+    temp.PrintOffline(300);
+    
     temp = null;
   }
   //////////////////////////////////////////////  
   
   //
-  public void MoveXY(float x, float y) {
-    pos.x = x;
-    pos.y = y;
-    pos.x = constrain(pos.x, min_xy, max_xy);
-    pos.y = constrain(pos.y, min_xy, max_xy);
-  }
+  //public void MoveXY(float x, float y) {
+  //  pos.x = x;
+  //  pos.y = y;
+  //  pos.x = constrain(pos.x, min_xy, max_xy);
+  //  pos.y = constrain(pos.y, min_xy, max_xy);
+  //}
   
   // -1 decrease, 1 increase Z
   public void MoveZ(int sign) {
@@ -130,7 +133,7 @@ class Printer {
     if(sign == -1 || sign == 1) {
       current_height += sign * layer_height; 
       current_height = constrain(current_height, min_z, max_z);
-      pos.z = current_height;
+      //pos.z = current_height;
     }
   }
   

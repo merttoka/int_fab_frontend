@@ -26,7 +26,6 @@ void draw() {
   // update printer environment variables
   p.Update();
   
-  
   // draws printer environment
   p.Draw();
  

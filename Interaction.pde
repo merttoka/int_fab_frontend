@@ -3,7 +3,6 @@
 void mousePressed() { 
   if(mouseButton == LEFT && __isDrawMode) {
     p.StartStroke();
-    //SendMessage("/extrude");
   } 
 }
 void mouseDragged() {
@@ -14,7 +13,6 @@ void mouseDragged() {
 void mouseReleased() {
   if(mouseButton == LEFT && __isDrawMode) {
     p.EndStroke();
-    //SendMessage("/retract");
   }
 }
 
