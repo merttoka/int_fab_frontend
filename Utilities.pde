@@ -1,3 +1,9 @@
+
+// 
+float stepMap(float val, float min0, float max0, float min1, float max1) {
+  return constrain(map(val, min0, max0, min1, max1), min(min1,max1), max(min1,max1));
+}
+
 // 
 // Console print manager
 // 'level' is importance of the message: [0, 4]

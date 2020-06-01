@@ -3,7 +3,14 @@
 void mousePressed() { 
   if(mouseButton == LEFT && __isDrawMode) {
     p.StartStroke();
-  } 
+  }
+  //if(mouseButton == RIGHT && __isDrawMode) {
+    //PVector wc = p.MousePointInWorldCoordinates();
+    
+    // intervenes with stroke prints
+    // needs an isPrinting check with acknowledgements
+    //SendMessage("/move", w2b(wc.x), w2b(wc.y), p.current_height);
+  //}
 }
 void mouseDragged() {
   if(mouseButton == LEFT && __isDrawMode) {

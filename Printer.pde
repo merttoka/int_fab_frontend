@@ -25,18 +25,18 @@ class Printer {
   float max_z = 240,  min_z  = 0.3;
   
   //
-  float layer_height = 0.3;
+  float layer_height = 0.4;
   
   //
   BBox bb_current;
   float current_height = layer_height;
-  PVector pos = new PVector(0,0,0), 
-          last_pos = new PVector(0,0,0);
+  //PVector pos = new PVector(0,0,0), 
+  //        last_pos = new PVector(0,0,0);
   
   //
   ArrayList<Stroke> strokes = new ArrayList<Stroke>();
 
-  // 
+  //  
   public Printer() {
     this.bb_current = new BBox(new PVector(0,0,0), 
                                new PVector(b2w(bed_size),b2w(bed_size),b2w(current_height)));
@@ -47,7 +47,6 @@ class Printer {
   void Update() {
     UpdateWheelHandler();
     bb_current.UpdateMax(b2w(bed_size), b2w(bed_size), b2w(current_height));
-    
   }
   
   //
@@ -63,30 +62,31 @@ class Printer {
     box(b2w(bed_size),b2w(bed_size),b2w(bed_thickness));
     popMatrix();
     
-    // draw current drawing plane
-    if(__isDrawMode) {
-      pushMatrix();
-      hint(DISABLE_DEPTH_TEST);
-      translate(0,0,b2w(current_height));
-      stroke(30);
-      fill(140, 240, 240, 50);
-      rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
-      hint(ENABLE_DEPTH_TEST);
-      popMatrix();
-    }
+    // draw current drawing plane    
+    pushMatrix();
+    pushStyle();
+    hint(DISABLE_DEPTH_TEST);
+    translate(0,0,b2w(current_height));
+    stroke(255);
+    if(__isDrawMode) fill(140, 240, 240, 50);
+    else             noFill();
+    rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
+    hint(ENABLE_DEPTH_TEST);
+    popStyle();
+    popMatrix();
     
     // draw a box for mouse cursor
     DrawMouseCursor();
     
     // draw strokes
-    //hint(ENABLE_STROKE_PERSPECTIVE);
+    hint(ENABLE_STROKE_PERSPECTIVE);
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
       float h = s.GetHeight();
       s.c = color(160, 255, 255, (h == current_height ? 255 : 50));
       s.Draw();
     }
-    //hint(DISABLE_STROKE_PERSPECTIVE);
+    hint(DISABLE_STROKE_PERSPECTIVE);
     
     // draw nozzle
     //
@@ -94,7 +94,7 @@ class Printer {
     popMatrix();
   }
   
-  // DRAWING FUNCTIONS
+  // BRUSH STROKE FUNCTIONS
   /////////////////////
   //
   // onpress
@@ -113,7 +113,7 @@ class Printer {
   // onrelease
   public void EndStroke() {
     // actual printing
-    temp.PrintOffline(300);
+    (new PrintSender(temp.vertices)).start();
     
     temp = null;
   }
@@ -133,7 +133,10 @@ class Printer {
     if(sign == -1 || sign == 1) {
       current_height += sign * layer_height; 
       current_height = constrain(current_height, min_z, max_z);
-      //pos.z = current_height;
+      
+      // change the z of lookat
+      float[] lookat = cam.getLookAt();
+      cam.lookAt(lookat[0], lookat[1], lookat[2]+b2w(sign*layer_height));
     }
   }
   
@@ -164,6 +167,69 @@ class Printer {
     }
     return null;
   }
+  
+  
+  // 
+  // class to send messages on a separete thread by slowing down the rate
+  class PrintSender extends Thread {
+    // vertices of shape
+    ArrayList<PVector> vertices = new ArrayList<PVector>();
+    public PrintSender(ArrayList<PVector> list) {
+      this.vertices = (ArrayList<PVector>)list.clone();
+    }
+    
+    public void run() {
+      try {
+        PrintOffline(300);
+        //PrintOnline();
+      } catch(InterruptedException e) {
+        PrintManager("ERROR: thread interrupted", 4);
+      } catch(Exception e) {
+        PrintManager("ERROR: when sending print commands", 4);
+      }
+    }
+    
+    // - after its finalized
+    private void PrintOffline(float speed) throws InterruptedException {
+      PVector point;
+      for(int i=0; i<vertices.size(); i++) {
+        // increase sleep times as the list gets longer
+        Thread.sleep((long)constrain(100*log(i+1)+10, 10, 1000));
+        point = vertices.get(i);
+        // last vertex -> move and extrude
+        if(i==0) {
+          SendMessage("/move", point.x, point.y, point.z);
+          SendMessage("/extrude");
+          continue;
+        }
+        // move to next point, material extrusion is calculated in Python side
+        SendMessage("/move/extrude", point.x, point.y, point.z);
+        
+        // last vertex -> retract
+        if(i==vertices.size()-1) {
+          SendMessage("/retract");
+          continue;
+        }
+      }
+    }
+    
+    // - in realtime
+    private void PrintOnline() {
+      int len = vertices.size();
+      if (len == 1) {
+        // extrude
+      }
+      else if(len > 1) {
+        PVector pos = vertices.get(len-1);
+        PVector ppos = vertices.get(len-2); // prevpos
+        // calculate extrusion amount based on speed
+      }
+      // len == 0   . donothing
+      // len == 1   . extrude material on the pos
+      // len == ..  . // extrude amount and speed to next point
+      // how to retract?
+    } 
+  }
 }
 
 
@@ -178,7 +244,8 @@ void DrawMouseCursor() {
       translate(hit.x, hit.y, hit.z);
       noStroke();
       fill(0, 150);
-      ellipse(0,0,10*b2w(nozzle_radius),10*b2w(nozzle_radius));
+      float r = CameraDistanceScaleDown()*3*b2w(nozzle_radius); 
+      ellipse(0,0,r,r);
       popStyle();
       popMatrix();
     }

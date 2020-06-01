@@ -48,3 +48,8 @@ PVector CameraPosition() {
   float[] arr = cam.getPosition();
   return new PVector(arr[0], arr[1], arr[2]);
 }
+
+//
+float CameraDistanceScaleDown() {
+  return stepMap((float)cam.getDistance(), 0, 500, 0.5, smooth_stroke);
+}
