@@ -9,12 +9,11 @@ float w2b(float w) { return w/b2w_ratio; }
 // dimensions for real objects on the machine (in mm)
 float bed_thickness = 5;
 float bed_size = 240;      // bed width/height
-float safe_bed_size = 220; //
+float safe_bed_size = 215; //
 float nozzle_width = 58;   // width of the nozzle case
 float nozzle_depth = 40;   // depth of the nozzle case
 float nozzle_radius = 0.4;
 float bar_depth = 20;      // bar that holds the nozzle
-
 
 //
 // Printer class that handles all paths
@@ -22,7 +21,7 @@ class Printer {
   
   // Printer limits xy
   float max_xy = safe_bed_size, min_xy = 0;
-  float max_z = 240,  min_z  = 0.3;
+  float max_z = 240,  min_z  = 0.4;
   
   //
   float layer_height = 0.4;
@@ -30,8 +29,15 @@ class Printer {
   //
   BBox bb_current;
   float current_height = layer_height;
-  //PVector pos = new PVector(0,0,0), 
+  PVector nozzle_pos = new PVector(0,0,0); 
   //        last_pos = new PVector(0,0,0);
+  
+  // 
+  float bed_temp = 0;
+  float bed_temp_target = 0;
+  float nozzle_temp = 0;
+  float nozzle_temp_target = 0;
+  
   
   //
   ArrayList<Stroke> strokes = new ArrayList<Stroke>();
@@ -75,9 +81,11 @@ class Printer {
     popStyle();
     popMatrix();
     
+    //
     // draw a box for mouse cursor
     DrawMouseCursor();
     
+    //
     // draw strokes
     hint(ENABLE_STROKE_PERSPECTIVE);
     for(int i=0; i < strokes.size(); i++) {
@@ -88,8 +96,11 @@ class Printer {
     }
     hint(DISABLE_STROKE_PERSPECTIVE);
     
-    // draw nozzle
     //
+    // draw nozzle
+    stroke(0, 200, 200, 150);
+    line(b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z), 
+         b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z+40));
     
     popMatrix();
   }
@@ -194,7 +205,8 @@ class Printer {
       PVector point;
       for(int i=0; i<vertices.size(); i++) {
         // increase sleep times as the list gets longer
-        Thread.sleep((long)constrain(100*log(i+1)+10, 10, 1000));
+        Thread.sleep(50);
+        //Thread.sleep((long)constrain(100*log(i+1)+10, 10, 1000));
         point = vertices.get(i);
         // last vertex -> move and extrude
         if(i==0) {

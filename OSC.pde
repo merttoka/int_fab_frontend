@@ -43,15 +43,21 @@ void SendMessage(String name) {
 //
 // incoming osc message are forwarded to the oscEvent method.
 void oscEvent(OscMessage _m) {
-  if(_m.checkAddrPattern("/test_py")){
-    PrintManager("Received osc message: " + _m.typetag(), 2);
-    
+  PrintManager("Received osc message: "+_m.address() + " " + _m.typetag(), 2);
+  if(_m.checkAddrPattern("/PY/temp")){
+    if(_m.checkTypetag("ffff")) {
+      p.bed_temp = _m.get(0).floatValue();
+      p.bed_temp_target = _m.get(1).floatValue();
+      p.nozzle_temp = _m.get(2).floatValue();
+      p.nozzle_temp_target = _m.get(3).floatValue();
+      return;
+    }  
+  }
+  if(_m.checkAddrPattern("/PY/n_pos")){
     if(_m.checkTypetag("fff")) {
-      float x = _m.get(0).floatValue(),
-            y = _m.get(1).floatValue(),
-            z = _m.get(2).floatValue();
-      
-      PrintManager("Received osc message = ["+x+", "+y+", "+z+"]", 0);
+      p.nozzle_pos.x = _m.get(0).floatValue();
+      p.nozzle_pos.y = _m.get(1).floatValue();
+      p.nozzle_pos.z = _m.get(2).floatValue();
       return;
     }  
   }

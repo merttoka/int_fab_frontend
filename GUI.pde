@@ -19,6 +19,7 @@ void InitGUI() {
 void DrawGUI() {
   hint(DISABLE_DEPTH_TEST);
   cam.beginHUD();
+  noStroke();
   fill(0, 150);
   rect(0, 0, 70,160);
   cp5.draw();
