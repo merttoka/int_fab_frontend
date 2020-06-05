@@ -6,6 +6,9 @@ ControlP5 cp5;
 // layer label
 Textlabel layerlabel;
 
+// 
+Textfield tweencount;
+
 //
 void InitGUI() {
   cp5 = new ControlP5(this);
@@ -36,15 +39,22 @@ void controlEvent(ControlEvent theEvent) {
 
 // 
 void AddViews() {
+  //
   cp5.addButton("move_up")
    .setPosition(10,10)
-   .setSize(50,50);
-  cp5.addButton("move_down")
-   .setPosition(10,100)
    .setSize(50,50);
   layerlabel = cp5.addTextlabel("layer_height")
    .setText(GetLayerLabelText())
    .setPosition(7,75);
+  cp5.addButton("move_down")
+   .setPosition(10,100)
+   .setSize(50,50);
+  
+  //
+  tweencount = cp5.addTextfield("tween_count")
+    .setPosition(10, 200)
+    .setSize(50,20);
+  
 }
 
 //
@@ -59,7 +69,11 @@ public void move_down(int _) {
   p.MoveZ(-1);
   layerlabel.setText(GetLayerLabelText());
 }
-
+public void tween_count(String theText) { 
+  // automatically receives results from controller input
+  println(int(theText));
+  tween_c = int(theText);
+}
 
 //  GUI Utils
 ////////////////// 

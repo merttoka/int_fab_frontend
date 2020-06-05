@@ -1,6 +1,7 @@
 // MOUSE CONTROLS
 // 
 IntList selected_strokes = new IntList();
+int tween_c = 2;
 void mousePressed() { 
   if(mouseButton == LEFT && __isDrawMode) {
     p.StartStroke();
@@ -53,7 +54,7 @@ void keyPressed(KeyEvent e) {
       Stroke s2 = p.strokes.get(selected_strokes.get(1));
       
       // interpolates between two lines
-      s1.Interpolate(s2, 2); 
+      s1.Interpolate(s2, tween_c); 
     }
   }
   
