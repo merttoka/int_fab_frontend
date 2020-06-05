@@ -1,16 +1,13 @@
 // MOUSE CONTROLS
 // 
+IntList selected_strokes = new IntList();
 void mousePressed() { 
   if(mouseButton == LEFT && __isDrawMode) {
     p.StartStroke();
   }
-  //if(mouseButton == RIGHT && __isDrawMode) {
-    //PVector wc = p.MousePointInWorldCoordinates();
-    
-    // intervenes with stroke prints
-    // needs an isPrinting check with acknowledgements
-    //SendMessage("/move", w2b(wc.x), w2b(wc.y), p.current_height);
-  //}
+  if(mouseButton == LEFT && !__isDrawMode && __isShiftDown) {
+    UpdateStrokeSelection();
+  }
 }
 void mouseDragged() {
   if(mouseButton == LEFT && __isDrawMode) {
@@ -26,15 +23,16 @@ void mouseReleased() {
 // KEYBOARD CONTROLS
 //
 boolean __isDrawMode = false;
-boolean __isAltDown = false;
+boolean __isShiftDown = false;
 void keyReleased(KeyEvent e) {
   // update Alt key (left and right alt keys are 18 and 19)
-  if(e.getKeyCode() == 18 || e.getKeyCode() == 19) __isAltDown = false;
+  //if(e.getKeyCode() == 18 || e.getKeyCode() == 19) 
+  if(e.getKeyCode() == 16) __isShiftDown = false;
 }
 // 
 void keyPressed(KeyEvent e) {
   // update Alt key
-  if(e.isAltDown()) __isAltDown = true;
+  if(e.isShiftDown()) __isShiftDown = true;
   
   if(key == ' ') {
     __isDrawMode = !__isDrawMode;
@@ -48,13 +46,49 @@ void keyPressed(KeyEvent e) {
     }
     PrintManager("Draw Mode="+__isDrawMode, __isDrawMode? 3:2);
   }
+  
+  if(key == 'i') {
+    if(selected_strokes.size() == 2) {
+      Stroke s1 = p.strokes.get(selected_strokes.get(0));
+      Stroke s2 = p.strokes.get(selected_strokes.get(1));
+      
+      // interpolates between two lines
+      s1.Interpolate(s2, 2); 
+    }
+  }
+  
   if(key == 't' || key == 'T') {
     TopView();
   }
 }
 ////////////////////////////////
 
+// Updates the selected strokes
+public void UpdateStrokeSelection() {
+  for(int i=0; i<p.strokes.size();i++) {
+    Stroke s = p.strokes.get(i);
+    PVector wc = s.IsMouseHit();
+    if (wc!=null) {
+      // if already selected
+      if (!selected_strokes.hasValue(i)) {
+        selected_strokes.append(i);
+        s.c = color(30, 255, 255);
+        break;
+      }
+      // if not, delete the selection on ctrl click
+      else {
+        // double check to guard for sync callbacks 
+        if(selected_strokes.hasValue(i)) {
+          selected_strokes.removeValue(i);
+          s.c = color(140, 255, 255);
+          break;
+        }     
+      }
+    }      
+  }
+}
 
+////////////////////////////////
 
 /////////////////////////////////
 /////////////////////////////////

@@ -95,7 +95,7 @@ class Printer {
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
       float h = s.GetHeight();
-      s.c = color(160, 255, 255, (h == current_height ? 255 : 50));
+      s.c = color(hue(s.c), saturation(s.c), brightness(s.c), (h == current_height ? 255 : 50));
       s.Draw();
     }
     hint(DISABLE_STROKE_PERSPECTIVE);
@@ -118,6 +118,7 @@ class Printer {
   public void StartStroke() {
     temp = new Stroke();
     strokes.add(temp);
+    println(strokes.size());
   }
   // ondrag
   public void CollectStroke() {
@@ -129,7 +130,7 @@ class Printer {
   // onrelease
   public void EndStroke() {
     // actual printing
-    (new PrintSender(temp.vertices, temp.length)).start();
+    if(temp != null) (new PrintSender(temp.vertices, temp.length)).start();
     
     temp = null;
   }
@@ -158,7 +159,7 @@ class Printer {
   
   //
   void UpdateWheelHandler() {
-    if(__isAltDown) {
+    if(__isShiftDown) {
       cam.setWheelHandler(new PeasyWheelHandler(){
          public void handleWheel(final int wheel){
            MoveZ(-wheel);

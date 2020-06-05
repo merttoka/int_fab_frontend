@@ -9,14 +9,18 @@ class Stroke {
   // 
   // vertices in bed coordinates
   ArrayList<PVector> vertices = new ArrayList<PVector>();
+  
+  // BBox is in world coordinates
+  ArrayList<BBox> bb = new ArrayList<BBox>();
+  
   float length; 
   
   // shape hold the world coordinates
   PShape shape;
-  BBox bb;
+  
   
   // rendering
-  color c = color(0, 255, 255);
+  color c = color(140, 255, 255);
   float stroke_weight = 4;
   
   //
@@ -49,7 +53,10 @@ class Stroke {
       float smooth_distance = CameraDistanceScaleDown();
       if(prev.dist(pos) > smooth_distance) { // if its not too close to the previous vertex
         length += prev.dist(pos); 
-        vertices.add(pos);   
+        vertices.add(pos); 
+        
+        // add selectable boundary after scaling to world coordinates
+        addBBox(PVector.mult(prev,b2w(1)), PVector.mult(pos,b2w(1)));
       }
     }
     else vertices.add(pos);
@@ -70,9 +77,60 @@ class Stroke {
   }
   
   //
+  public PVector IsMouseHit() {
+    if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
+      PVector hit = new PVector();
+      for(int i=0; i < bb.size(); i++) {
+        if (bb.get(i).CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
+          // in world coordinates
+          return hit; 
+        }  
+      }
+    }
+    return null;
+  }
+  
+  //
+  // generates count many interpolated strokes in between two strokes
+  public void Interpolate(Stroke s, int count) {
+    int l1 = vertices.size();
+    int l2 = s.vertices.size();
+    int diff = abs(l1-l2);
+    for(int i=1; i<=count; i++){
+      // rows [0,1]
+      float __i = i/float(count+1);
+      Stroke new_stroke = new Stroke();      
+      for(int j = 0; j < min(l1, l2)+int(diff*__i); j++) {
+        // cols [0,1] -- to select which coordinate to use
+        float __j = j/float(min(l1, l2)+int(diff*__i)); 
+        
+        PVector p1 = vertices.get(int(__j*l1));
+        PVector p2 = s.vertices.get(int(__j*l2));
+        
+        PVector v = PVector.add(PVector.mult(p1,__i), PVector.mult(p2,(1-__i)));
+        new_stroke.AddVertex(v.x,v.y,v.z);
+      }
+      p.strokes.add(new_stroke);
+    }
+  }
+  
+  //
   public float GetHeight() {
     if(vertices.size() > 0)
       return vertices.get(0).z; 
     return 0;
   }  
+  
+  //
+  private void addBBox(PVector min, PVector max) {
+    PVector p1 = min.copy(), p2 = max.copy();
+    PVector line = PVector.sub(max,min);
+    float off = 10; // px
+    line.z = max(off, line.z);
+    line.y = max(off, line.y);
+    line.x = max(off, line.x);
+    
+    p2 = PVector.add(min,line);
+    bb.add(new BBox(p1, p2));
+  }
 }
