@@ -9,6 +9,7 @@ class Stroke {
   // 
   // vertices in bed coordinates
   ArrayList<PVector> vertices = new ArrayList<PVector>();
+  float length; 
   
   // shape hold the world coordinates
   PShape shape;
@@ -43,9 +44,12 @@ class Stroke {
     if(vertices.size() > 0) {
       PVector prev = vertices.get(vertices.size()-1);
       
+      // the smoothing distance for stroke, threshold is scaled by the camera distance
+      // closer lines have more vertices for increased accuracy.
       float smooth_distance = CameraDistanceScaleDown();
       if(prev.dist(pos) > smooth_distance) { // if its not too close to the previous vertex
-        vertices.add(pos);    
+        length += prev.dist(pos); 
+        vertices.add(pos);   
       }
     }
     else vertices.add(pos);

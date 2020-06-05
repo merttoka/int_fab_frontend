@@ -33,6 +33,19 @@ void SendMessage(String name, float x, float y, float z) {
   
   PrintManager("Message sent=["+x+", "+y+", "+z+"]", 2);
 }
+void SendMessage(String name, float x, float y, float z, float speed) {
+  /* in the following different ways of creating osc messages are shown by example */
+  OscMessage myMessage = new OscMessage(name);
+  myMessage.add(x);
+  myMessage.add(y);
+  myMessage.add(z);
+  myMessage.add(speed);
+
+  /* send the message */
+  oscP5.send(myMessage, myRemoteLocation); 
+  
+  PrintManager("Message sent=["+x+", "+y+", "+z+", "+speed+"]", 2);
+}
 void SendMessage(String name) {
   OscMessage myMessage = new OscMessage(name);
   oscP5.send(myMessage, myRemoteLocation); 
@@ -43,7 +56,7 @@ void SendMessage(String name) {
 //
 // incoming osc message are forwarded to the oscEvent method.
 void oscEvent(OscMessage _m) {
-  PrintManager("Received osc message: "+_m.address() + " " + _m.typetag(), 2);
+  //PrintManager("Received osc message: "+_m.address() + " " + _m.typetag(), 2);
   if(_m.checkAddrPattern("/PY/temp")){
     if(_m.checkTypetag("ffff")) {
       p.bed_temp = _m.get(0).floatValue();

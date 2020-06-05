@@ -18,12 +18,14 @@ void InitGUI() {
 // draw
 void DrawGUI() {
   hint(DISABLE_DEPTH_TEST);
+  pushStyle();
   cam.beginHUD();
   noStroke();
   fill(0, 150);
   rect(0, 0, 70,160);
   cp5.draw();
   cam.endHUD();
+  popStyle();
   hint(ENABLE_DEPTH_TEST);
 }
 

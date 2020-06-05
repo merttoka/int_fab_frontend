@@ -29,8 +29,7 @@ class Printer {
   //
   BBox bb_current;
   float current_height = layer_height;
-  PVector nozzle_pos = new PVector(0,0,0); 
-  //        last_pos = new PVector(0,0,0);
+  PVector nozzle_pos = new PVector(0,0,0);
   
   // 
   float bed_temp = 0;
@@ -38,6 +37,10 @@ class Printer {
   float nozzle_temp = 0;
   float nozzle_temp_target = 0;
   
+  // 
+  float rate_first_layer = 750;
+  float rate_normal = 1400;
+  float rate_high = 2000; 
   
   //
   ArrayList<Stroke> strokes = new ArrayList<Stroke>();
@@ -87,6 +90,7 @@ class Printer {
     
     //
     // draw strokes
+    pushStyle();
     hint(ENABLE_STROKE_PERSPECTIVE);
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
@@ -95,6 +99,7 @@ class Printer {
       s.Draw();
     }
     hint(DISABLE_STROKE_PERSPECTIVE);
+    popStyle();
     
     //
     // draw nozzle
@@ -124,7 +129,7 @@ class Printer {
   // onrelease
   public void EndStroke() {
     // actual printing
-    (new PrintSender(temp.vertices)).start();
+    (new PrintSender(temp.vertices, temp.length)).start();
     
     temp = null;
   }
@@ -183,15 +188,17 @@ class Printer {
   // 
   // class to send messages on a separete thread by slowing down the rate
   class PrintSender extends Thread {
+    float length;
     // vertices of shape
     ArrayList<PVector> vertices = new ArrayList<PVector>();
-    public PrintSender(ArrayList<PVector> list) {
+    public PrintSender(ArrayList<PVector> list, float len) {
       this.vertices = (ArrayList<PVector>)list.clone();
+      this.length = len;
     }
     
     public void run() {
       try {
-        PrintOffline(300);
+        PrintOffline();
         //PrintOnline();
       } catch(InterruptedException e) {
         PrintManager("ERROR: thread interrupted", 4);
@@ -200,29 +207,45 @@ class Printer {
       }
     }
     
-    // - after its finalized
-    private void PrintOffline(float speed) throws InterruptedException {
-      PVector point;
+    // - after its finalized // speed is in mm/min
+    private void PrintOffline() throws InterruptedException {
+      PVector point, prev;
+      float rate = (int(current_height/layer_height)==1?rate_first_layer:rate_normal);
+      // runnning sum of the stroke
+      float sum = 0;
       for(int i=0; i<vertices.size(); i++) {
-        // increase sleep times as the list gets longer
-        Thread.sleep(50);
-        //Thread.sleep((long)constrain(100*log(i+1)+10, 10, 1000));
         point = vertices.get(i);
+        if(i > 0) {
+          prev = vertices.get(i-1);
+          sum += prev.dist(point); 
+        }
+        
         // last vertex -> move and extrude
         if(i==0) {
-          SendMessage("/move", point.x, point.y, point.z);
+          SendMessage("/move", point.x, point.y, point.z, rate_high);
+          SendMessage("/req/nozzle_pos");
           SendMessage("/extrude");
           continue;
         }
         // move to next point, material extrusion is calculated in Python side
-        SendMessage("/move/extrude", point.x, point.y, point.z);
+        SendMessage("/move/extrude", point.x, point.y, point.z, rate); 
         
         // last vertex -> retract
         if(i==vertices.size()-1) {
           SendMessage("/retract");
+          SendMessage("/req/nozzle_pos");
           continue;
         }
+        
+        // 1 second = rate/60 mm/sec 
+        // sleep for one second in each "int(rate/60*1.2)" mm
+        if(sum > int(rate/60*1.2))  {
+          sum -= int(rate/60*1.2);
+          Thread.sleep(1000);
+        }
+        else Thread.sleep(50);
       }
+      println(length + " mm // " + rate + " mm/min // "+ nfc((length/rate)*60.,2)+" seconds");
     }
     
     // - in realtime
