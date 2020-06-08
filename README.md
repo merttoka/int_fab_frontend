@@ -8,6 +8,8 @@ A drawing interface for building 3D-printing with strokes. This software collect
 
 Originally intended to work on iPad using Duet Display but currently it is tuned for keyboard and mouse input.  
 
+[![DEMO](http://img.youtube.com/vi/Vwcu9hx7YE0/0.jpg)](https://youtu.be/Vwcu9hx7YE0)
+
 ## Usage
 The program starts with an empty canvas representing 3D printer bed. Mouse drag will rotate the view 
 #### Interaction
