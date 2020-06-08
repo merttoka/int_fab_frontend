@@ -36,6 +36,28 @@ void PrintManager(String message, int level) {
   println(prefix+" "+message+" ("+ts+")");
 }
 
+
+//
+// on current_height
+void DrawMouseCursor() {
+  if(!__isShiftDown) {
+    if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
+      PVector hit = new PVector();
+      if (p.bb_current.CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
+        // hit is in world coordinates
+        pushMatrix();
+        pushStyle();
+        translate(hit.x, hit.y, hit.z);
+        noStroke();
+        fill(0, 150);
+        float r = CameraDistanceScaleDown()*3*b2w(nozzle_radius); 
+        ellipse(0,0,r,r);
+        popStyle();
+        popMatrix();
+      }
+    }
+  }
+}
 //
 // Draws the X,Y,Z lines with R,G,B respectively
 void DrawGizmo(float scale, float alpha, boolean drawPlanes) {

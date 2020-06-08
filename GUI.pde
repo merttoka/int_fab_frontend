@@ -3,8 +3,10 @@ import controlP5.*;
 //
 ControlP5 cp5;
 
-// layer label
+// labels
 Textlabel layerlabel;
+Textlabel printmodelabel;
+
 
 // 
 Textfield tweencount;
@@ -52,9 +54,24 @@ void AddViews() {
   
   //
   tweencount = cp5.addTextfield("tween_count")
-    .setPosition(10, 200)
+    .setPosition(10, 180)
     .setSize(50,20);
   
+  cp5.addButton("_selected")
+   .setPosition(10,250)
+   .setSize(50,50);
+  cp5.addButton("_stroke")
+   .setPosition(63,250) 
+   .setSize(50,50);
+  
+  printmodelabel = cp5.addTextlabel("print_mode_label")
+   .setPosition(5, 310)
+   .setSize(100,50)
+   .setText(GetPrintingModeText());
+   
+  cp5.addButton("PRINT")
+   .setPosition(10,380)
+   .setSize(100,50); 
 }
 
 //
@@ -71,12 +88,25 @@ public void move_down(int _) {
 }
 public void tween_count(String theText) { 
   // automatically receives results from controller input
-  println(int(theText));
   tween_c = int(theText);
+}
+public void _stroke(int _) { 
+  __drawMode = true;
+  printmodelabel.setText(GetPrintingModeText());
+}
+public void _selected(int _) { 
+  __drawMode = false;
+  printmodelabel.setText(GetPrintingModeText());
+}
+public void PRINT(int _) { 
+  // print selected curves
 }
 
 //  GUI Utils
 ////////////////// 
 String GetLayerLabelText() {
   return "["+ int(p.current_height/p.layer_height) +"]  " + nfc(p.current_height,2) + " mm";  
+}
+String GetPrintingModeText() {
+  return (__drawMode ? "Print stroke upon finishing it" : "Print selected strokes \nusing PRINT button.\n\nTo select strokes,\n disable drawing mode,\n hold SHIFT and\n select the stroke.");
 }

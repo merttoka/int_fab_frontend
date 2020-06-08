@@ -5,7 +5,8 @@ color background = color(30);
 Printer p;
 
 public void settings() {
-  size(int(2388*0.5), int(1668*0.5), P3D);  // fullScreen(P3D, 3); // 2388 x 1668
+  fullScreen(P3D, 1); // 2388 x 1668
+  //size(int(2388*0.5), int(1668*0.5), P3D);  // /
 }
 void setup() {    
   colorMode(HSB);
@@ -25,7 +26,10 @@ void draw() {
   scale(1,-1,1);                             // flip-y
   select.captureViewMatrix((PGraphics3D)g);  // feed selection object with viewmatrix
   
-  
+  //for(int i = 0; i < p.strokes.size(); i++) {
+  //  println(i, p.strokes.get(i).isFlat, "l="+p.strokes.get(i).length);
+  //}
+    
   // update printer environment variables
   p.Update();
   // draws printer environment

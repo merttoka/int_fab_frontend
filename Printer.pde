@@ -77,8 +77,8 @@ class Printer {
     hint(DISABLE_DEPTH_TEST);
     translate(0,0,b2w(current_height));
     stroke(255);
-    if(__isDrawMode) fill(140, 240, 240, 50);
-    else             noFill();
+    if(__isDraw) fill(140, 240, 240, 50);
+    else         noFill();
     rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
     hint(ENABLE_DEPTH_TEST);
     popStyle();
@@ -94,8 +94,9 @@ class Printer {
     hint(ENABLE_STROKE_PERSPECTIVE);
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
-      float h = s.GetHeight();
-      s.c = color(hue(s.c), saturation(s.c), brightness(s.c), (h == current_height ? 255 : 50));
+      float h = s.GetHeight(); // returns 0 when !isFlat
+      s.c = color(hue(s.c), saturation(s.c), brightness(s.c), (IsCloseToCurrentLayer(h) ? 255 : 50));
+      s.stroke_weight = CameraDistanceScaleDown();
       s.Draw();
     }
     hint(DISABLE_STROKE_PERSPECTIVE);
@@ -103,6 +104,7 @@ class Printer {
     
     //
     // draw nozzle
+    // ???
     stroke(0, 200, 200, 150);
     line(b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z), 
          b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z+40));
@@ -117,22 +119,25 @@ class Printer {
   Stroke temp=null;
   public void StartStroke() {
     temp = new Stroke();
+    temp.isFlat = true; // its bound to the plane in this mode
     strokes.add(temp);
-    println(strokes.size());
   }
   // ondrag
   public void CollectStroke() {
     if(temp != null && strokes.size() >= 1) {
+      Stroke s = strokes.get(strokes.size()-1);
       PVector wc = MousePointInWorldCoordinates();
-      if (wc!=null)   strokes.get(strokes.size()-1).AddVertex(w2b(wc.x), w2b(wc.y), current_height);
+      if (wc!=null && !s.isClosed)   s.AddVertex(w2b(wc.x), w2b(wc.y), current_height);
     }
   }
   // onrelease
   public void EndStroke() {
-    // actual printing
-    if(temp != null) (new PrintSender(temp.vertices, temp.length)).start();
+    // actual printing if draw mode is immediate
+    if(temp != null && __drawMode) (new PrintSender(temp)).start();
     
-    temp = null;
+    if (temp.vertices.size() == 0) // if its just a click, delete the last stroke
+      strokes.remove(strokes.size()-1);  
+    temp = null; // release temp
   }
   //////////////////////////////////////////////  
   
@@ -185,105 +190,8 @@ class Printer {
     return null;
   }
   
-  
-  // 
-  // class to send messages on a separete thread by slowing down the rate
-  class PrintSender extends Thread {
-    float length;
-    // vertices of shape
-    ArrayList<PVector> vertices = new ArrayList<PVector>();
-    public PrintSender(ArrayList<PVector> list, float len) {
-      this.vertices = (ArrayList<PVector>)list.clone();
-      this.length = len;
-    }
-    
-    public void run() {
-      try {
-        PrintOffline();
-        //PrintOnline();
-      } catch(InterruptedException e) {
-        PrintManager("ERROR: thread interrupted", 4);
-      } catch(Exception e) {
-        PrintManager("ERROR: when sending print commands", 4);
-      }
-    }
-    
-    // - after its finalized // speed is in mm/min
-    private void PrintOffline() throws InterruptedException {
-      PVector point, prev;
-      float rate = (int(current_height/layer_height)==1?rate_first_layer:rate_normal);
-      // runnning sum of the stroke
-      float sum = 0;
-      for(int i=0; i<vertices.size(); i++) {
-        point = vertices.get(i);
-        if(i > 0) {
-          prev = vertices.get(i-1);
-          sum += prev.dist(point); 
-        }
-        
-        // last vertex -> move and extrude
-        if(i==0) {
-          SendMessage("/move", point.x, point.y, point.z, rate_high);
-          SendMessage("/req/nozzle_pos");
-          SendMessage("/extrude");
-          continue;
-        }
-        // move to next point, material extrusion is calculated in Python side
-        SendMessage("/move/extrude", point.x, point.y, point.z, rate); 
-        
-        // last vertex -> retract
-        if(i==vertices.size()-1) {
-          SendMessage("/retract");
-          SendMessage("/req/nozzle_pos");
-          continue;
-        }
-        
-        // 1 second = rate/60 mm/sec 
-        // sleep for one second in each "int(rate/60*1.2)" mm
-        if(sum > int(rate/60*1.2))  {
-          sum -= int(rate/60*1.2);
-          Thread.sleep(1000);
-        }
-        else Thread.sleep(50);
-      }
-      println(length + " mm // " + rate + " mm/min // "+ nfc((length/rate)*60.,2)+" seconds");
-    }
-    
-    // - in realtime
-    private void PrintOnline() {
-      int len = vertices.size();
-      if (len == 1) {
-        // extrude
-      }
-      else if(len > 1) {
-        PVector pos = vertices.get(len-1);
-        PVector ppos = vertices.get(len-2); // prevpos
-        // calculate extrusion amount based on speed
-      }
-      // len == 0   . donothing
-      // len == 1   . extrude material on the pos
-      // len == ..  . // extrude amount and speed to next point
-      // how to retract?
-    } 
-  }
-}
-
-
-// on current_height
-void DrawMouseCursor() {
-  if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
-    PVector hit = new PVector();
-    if (p.bb_current.CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
-      // hit is in world coordinates
-      pushMatrix();
-      pushStyle();
-      translate(hit.x, hit.y, hit.z);
-      noStroke();
-      fill(0, 150);
-      float r = CameraDistanceScaleDown()*3*b2w(nozzle_radius); 
-      ellipse(0,0,r,r);
-      popStyle();
-      popMatrix();
-    }
+  //
+  private boolean IsCloseToCurrentLayer(float h) {
+    return (h>current_height-layer_height/2&&h<current_height+layer_height/2);
   }
 }

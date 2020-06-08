@@ -1,30 +1,34 @@
 // MOUSE CONTROLS
 // 
 IntList selected_strokes = new IntList();
-int tween_c = 2;
+int tween_c = 10; // -1 draws maximum amount of layers
 void mousePressed() { 
-  if(mouseButton == LEFT && __isDrawMode) {
+  if(mouseButton == LEFT && __isDraw) {
     p.StartStroke();
   }
-  if(mouseButton == LEFT && !__isDrawMode && __isShiftDown) {
+  if(mouseButton == LEFT && !__isDraw && __isShiftDown) {
     UpdateStrokeSelection();
   }
 }
 void mouseDragged() {
-  if(mouseButton == LEFT && __isDrawMode) {
+  if(mouseButton == LEFT && __isDraw) {
     p.CollectStroke();
   }
 }
 void mouseReleased() {
-  if(mouseButton == LEFT && __isDrawMode) {
+  if(mouseButton == LEFT && __isDraw) {
     p.EndStroke();
   }
 }
 
 // KEYBOARD CONTROLS
 //
-boolean __isDrawMode = false;
+boolean __isDraw = false;
 boolean __isShiftDown = false;
+boolean __drawMode = false; 
+// 0 -> print immediately on stroke finish (true)
+// 1 -> print selected lines (false)
+// 2 -> TODO: print realtime
 void keyReleased(KeyEvent e) {
   // update Alt key (left and right alt keys are 18 and 19)
   //if(e.getKeyCode() == 18 || e.getKeyCode() == 19) 
@@ -35,9 +39,10 @@ void keyPressed(KeyEvent e) {
   // update Alt key
   if(e.isShiftDown()) __isShiftDown = true;
   
+  // draw mode
   if(key == ' ') {
-    __isDrawMode = !__isDrawMode;
-    if(__isDrawMode) {
+    __isDraw = !__isDraw;
+    if(__isDraw) {
       cam.setLeftDragHandler(null);
       cam.setRightDragHandler(null);
     }
@@ -45,48 +50,70 @@ void keyPressed(KeyEvent e) {
       cam.setLeftDragHandler(rotateHandler);
       cam.setRightDragHandler(zoomHandler);
     }
-    PrintManager("Draw Mode="+__isDrawMode, __isDrawMode? 3:2);
+    PrintManager("Draw Mode="+__isDraw, __isDraw? 3:2);
   }
   
+  // interloate
   if(key == 'i') {
-    if(selected_strokes.size() == 2) {
-      Stroke s1 = p.strokes.get(selected_strokes.get(0));
-      Stroke s2 = p.strokes.get(selected_strokes.get(1));
+    if(selected_strokes.size() >= 2) {
+      int l = selected_strokes.size();
+      Stroke s1 = p.strokes.get(selected_strokes.get(l-1));
+      Stroke s2 = p.strokes.get(selected_strokes.get(l-2));
       
       // interpolates between two lines
       s1.Interpolate(s2, tween_c); 
     }
   }
   
+  // top view
   if(key == 't' || key == 'T') {
     TopView();
+  }
+  
+  // clears last stroke, works while drawing
+  if(key == 'c' || key == 'C') {
+    if(p.strokes.size() > 0) {
+      if(selected_strokes.hasValue(p.strokes.size()-1))
+        selected_strokes.removeValue(p.strokes.size()-1);
+      p.strokes.remove(p.strokes.size()-1);
+    }
   }
 }
 ////////////////////////////////
 
 // Updates the selected strokes
+int fail_count = 0;
+int fail_count_max = 3;
 public void UpdateStrokeSelection() {
   for(int i=0; i<p.strokes.size();i++) {
     Stroke s = p.strokes.get(i);
     PVector wc = s.IsMouseHit();
+    // hit
     if (wc!=null) {
+      fail_count=0;
+      
       // if already selected
       if (!selected_strokes.hasValue(i)) {
         selected_strokes.append(i);
-        s.c = color(30, 255, 255);
-        break;
+        s.c = selected_color;
+        return;
       }
-      // if not, delete the selection on ctrl click
+      // if not, delete the selection on shift click
       else {
         // double check to guard for sync callbacks 
         if(selected_strokes.hasValue(i)) {
           selected_strokes.removeValue(i);
-          s.c = color(140, 255, 255);
-          break;
+          s.c = material_color;
+          return;
         }     
       }
-    }      
+    }  
   }
+  // clear all strokes
+  if(fail_count < fail_count_max) fail_count++;
+  else                            {selected_strokes.clear(); fail_count=0;}
+  //update colors
+  for(int i=0; i<p.strokes.size();i++)   p.strokes.get(i).c = material_color;
 }
 
 ////////////////////////////////
