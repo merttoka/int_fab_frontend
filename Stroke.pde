@@ -10,7 +10,7 @@ class Stroke {
   ArrayList<PVector> vertices = new ArrayList<PVector>();
   
   // BBox is in world coordinates
-  ArrayList<BBox> bb = new ArrayList<BBox>();
+  ArrayList<BBox> bb = new ArrayList<BBox>(); // each stroke has its own bounding box
   
   
   // shape hold the world coordinates
