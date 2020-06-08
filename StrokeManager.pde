@@ -156,6 +156,9 @@ class StrokeManager {
     //update colors
     for(int i=0; i<strokes.size();i++)   strokes.get(i).c = material_color;
   }
+  public void SelectAll() {
+    for(int i=0; i<strokes.size();i++) AddSelection(i, strokes.get(i));
+  }
   public void AddSelection(int i, Stroke s) {
     // if already selected
     if (!selected_strokes.hasValue(i)) {

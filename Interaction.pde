@@ -44,6 +44,9 @@ void keyReleased(KeyEvent e) {
 void keyPressed(KeyEvent e) {
   // update Alt key
   if(e.isShiftDown()) __isShiftDown = true;
+  if(e.isControlDown() && e.getKeyCode() == 65) { // ctrl+a
+    p.sm.SelectAll();  
+  }
   
   // draw mode
   if(key == ' ') {

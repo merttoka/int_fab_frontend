@@ -1,6 +1,8 @@
 # Interactive Drawing Interface for Digital Fabrication (Front End)
 
 ![An example of extruded surfaces](data/images/firstprint.jpg)
+![Another example](data/images/secondprint.jpg)
+
 
 A drawing interface for building 3D-printing with strokes. This software collects brush stroke information, and sends them to the [Python back-end](https://github.com/merttoka/int_fab_server) to communicate with Ender 3 Pro.
 

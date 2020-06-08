@@ -35,6 +35,7 @@ class Stroke {
   public void UpdateShape() {
     shape = createShape();
     shape.beginShape();
+    shape.colorMode(HSB);
     shape.noFill();
     for(int i=0; i<vertices.size();i++) {
       PVector _p = vertices.get(i);
