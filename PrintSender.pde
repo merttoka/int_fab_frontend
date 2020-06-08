@@ -1,3 +1,7 @@
+import java.util.*;
+
+PrintSender sender = null;
+
 // 
 // class to send messages on a separete thread by slowing down the rate
 public class PrintSender extends Thread {
@@ -14,11 +18,46 @@ public class PrintSender extends Thread {
     this.strokes.add(s);
   }
   
-  
+  // 
   public void run() {
-    try {
-      PrintStroke();
+      if(__drawMode)  PrintLastStroke();
+      else            PrintAllStrokes();
       //PrintOnline();
+  }
+  
+  // - after its finalized // speed is in mm/min
+  private void PrintAllStrokes()  {
+    try {
+      Collections.sort(strokes, new SortbyLayerHeight());
+      
+      for(int i = 0; i<strokes.size(); i++) {
+        float len = 0;
+        if(i < strokes.size()-1) {
+          PVector p0 = strokes.get(i).vertices.get(strokes.get(i).vertices.size()-1); // last vertex 
+          PVector p1 = strokes.get(i+1).vertices.get(0);                              // first vertex of next
+          
+          len = p0.dist(p1);
+        }
+        else   len = 0;
+        
+        println(i, strokes.get(i).GetHeight(), strokes.get(i).isFlat, strokes.get(i).length, len);
+        PrintStroke(strokes.get(i).vertices, 
+                    strokes.get(i).length, len);
+      }
+    } 
+    catch(InterruptedException e) {
+      PrintManager("ERROR: thread interrupted", 4);
+    } 
+    catch(Exception e) {
+      PrintManager("ERROR: when sending print commands", 4);
+    }
+  }
+  
+  // - after its finalized // speed is in mm/min
+  private void PrintLastStroke()  {
+    try {
+      PrintStroke(strokes.get(strokes.size()-1).vertices, 
+                  strokes.get(strokes.size()-1).length, 0); 
     } catch(InterruptedException e) {
       PrintManager("ERROR: thread interrupted", 4);
     } catch(Exception e) {
@@ -26,12 +65,8 @@ public class PrintSender extends Thread {
     }
   }
   
-  // - after its finalized // speed is in mm/min
-  private void PrintStroke() throws InterruptedException {
-    
-    ArrayList<PVector> vertices = strokes.get(strokes.size()-1).vertices;
-    float length = strokes.get(strokes.size()-1).length;
-    
+  // - in realtime
+  private void PrintStroke(ArrayList<PVector> vertices, float length, float nextlen) throws InterruptedException {
     PVector point, prev;
     float rate = (int(p.current_height/p.layer_height)==1?p.rate_first_layer:p.rate_normal);
     // runnning sum of the stroke
@@ -62,29 +97,14 @@ public class PrintSender extends Thread {
       
       // 1 second = rate/60 mm/sec 
       // sleep for one second in each "int(rate/60*1.2)" mm
-      if(sum > int(rate/60*1.2))  {
-        sum -= int(rate/60*1.2);
+      if(sum > int(rate/60))  {
+        sum -= int(rate/60);
         Thread.sleep(1000);
       }
       else Thread.sleep(50);
     }
     println(length + " mm // " + rate + " mm/min // "+ nfc((length/rate)*60.,2)+" seconds");
-  }
-  
-  // - in realtime
-  private void PrintOnline() {
-    //int len = vertices.size();
-    //if (len == 1) {
-      // extrude
-    //}
-    //else if(len > 1) {
-    //  PVector pos = vertices.get(len-1);
-    //  PVector ppos = vertices.get(len-2); // prevpos
-      // calculate extrusion amount based on speed
-    //}
-    // len == 0   . donothing
-    // len == 1   . extrude material on the pos
-    // len == ..  . // extrude amount and speed to next point
-    // how to retract?
+    
+    Thread.sleep((long)((nextlen/rate)*60.*1000.));
   } 
  }

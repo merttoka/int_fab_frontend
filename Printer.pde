@@ -24,7 +24,7 @@ class Printer {
   float max_z = 240,  min_z  = 0.4;
   
   //
-  float layer_height = 0.4;
+  float layer_height = 0.3;
   
   //
   BBox bb_current;
@@ -38,21 +38,21 @@ class Printer {
   float nozzle_temp_target = 0;
   
   // 
-  float rate_first_layer = 750;
-  float rate_normal = 1400;
-  float rate_high = 2000; 
+  float rate_first_layer = 600;
+  float rate_normal = 800;
+  float rate_high = 1500; 
   
   //
-  ArrayList<Stroke> strokes = new ArrayList<Stroke>();
+  StrokeManager sm = new StrokeManager();
 
   //  
   public Printer() {
+    // bounding box for current layer
     this.bb_current = new BBox(new PVector(0,0,0), 
                                new PVector(b2w(bed_size),b2w(bed_size),b2w(current_height)));
   }
 
   //
-  // fixed?
   void Update() {
     UpdateWheelHandler();
     bb_current.UpdateMax(b2w(bed_size), b2w(bed_size), b2w(current_height));
@@ -90,64 +90,16 @@ class Printer {
     
     //
     // draw strokes
-    pushStyle();
-    hint(ENABLE_STROKE_PERSPECTIVE);
-    for(int i=0; i < strokes.size(); i++) {
-      Stroke s = strokes.get(i);  
-      float h = s.GetHeight(); // returns 0 when !isFlat
-      s.c = color(hue(s.c), saturation(s.c), brightness(s.c), (IsCloseToCurrentLayer(h) ? 255 : 50));
-      s.stroke_weight = CameraDistanceScaleDown();
-      s.Draw();
-    }
-    hint(DISABLE_STROKE_PERSPECTIVE);
-    popStyle();
+    sm.DrawAll();
     
     //
-    // draw nozzle
-    // ???
+    // draw nozzle ??? 
     stroke(0, 200, 200, 150);
     line(b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z), 
          b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z+40));
     
     popMatrix();
   }
-  
-  // BRUSH STROKE FUNCTIONS
-  /////////////////////
-  //
-  // onpress
-  Stroke temp=null;
-  public void StartStroke() {
-    temp = new Stroke();
-    temp.isFlat = true; // its bound to the plane in this mode
-    strokes.add(temp);
-  }
-  // ondrag
-  public void CollectStroke() {
-    if(temp != null && strokes.size() >= 1) {
-      Stroke s = strokes.get(strokes.size()-1);
-      PVector wc = MousePointInWorldCoordinates();
-      if (wc!=null && !s.isClosed)   s.AddVertex(w2b(wc.x), w2b(wc.y), current_height);
-    }
-  }
-  // onrelease
-  public void EndStroke() {
-    // actual printing if draw mode is immediate
-    if(temp != null && __drawMode) (new PrintSender(temp)).start();
-    
-    if (temp.vertices.size() == 0) // if its just a click, delete the last stroke
-      strokes.remove(strokes.size()-1);  
-    temp = null; // release temp
-  }
-  //////////////////////////////////////////////  
-  
-  //
-  //public void MoveXY(float x, float y) {
-  //  pos.x = x;
-  //  pos.y = y;
-  //  pos.x = constrain(pos.x, min_xy, max_xy);
-  //  pos.y = constrain(pos.y, min_xy, max_xy);
-  //}
   
   // -1 decrease, 1 increase Z
   public void MoveZ(int sign) {
@@ -162,20 +114,17 @@ class Printer {
     }
   }
   
-  //
-  void UpdateWheelHandler() {
+  // shift mouse wheel 
+  public void UpdateWheelHandler() {
     if(__isShiftDown) {
       cam.setWheelHandler(new PeasyWheelHandler(){
          public void handleWheel(final int wheel){
            MoveZ(-wheel);
-           // update label
-           layerlabel.setText(GetLayerLabelText());
+           layerlabel.setText(GetLayerLabelText());  // update label
          }
       });    
     }
-    else {
-      cam.setWheelHandler(wheelHandler);
-    }
+    else   cam.setWheelHandler(wheelHandler);
   }
   
   //
@@ -188,10 +137,5 @@ class Printer {
       }
     }
     return null;
-  }
-  
-  //
-  private boolean IsCloseToCurrentLayer(float h) {
-    return (h>current_height-layer_height/2&&h<current_height+layer_height/2);
   }
 }

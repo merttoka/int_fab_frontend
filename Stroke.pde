@@ -10,8 +10,7 @@ class Stroke {
   ArrayList<PVector> vertices = new ArrayList<PVector>();
   
   // BBox is in world coordinates
-  ArrayList<BBox> bb = new ArrayList<BBox>(); // each stroke has its own bounding box
-  
+  ArrayList<BBox> bb = new ArrayList<BBox>(); // each line in stroke has its own bounding box
   
   // shape hold the world coordinates
   PShape shape;
@@ -100,58 +99,6 @@ class Stroke {
   }
   
   //
-  // generates count many interpolated strokes in between two strokes
-  public void Interpolate(Stroke s, int count) {
-    float h1 = GetHeight();
-    float h2 = s.GetHeight();
-    
-    // if count is -1, assign count to maximum layers in between (ideally solid)
-    if(count == -1) {
-      float[] min = new float[] {1000, 0, 0}; // min_dist, idx_i, idx_j
-      for(int i = 0; i<vertices.size();i++) {
-        for(int j = 0; j<s.vertices.size(); j++) {
-          float d = vertices.get(i).dist(s.vertices.get(j));
-          if(d < min[0]) {
-            min[0] = d;   min[1] = i;   min[2] = j;
-          }
-        }  
-      }
-      count = int(min[0]/p.layer_height);
-    }
-    
-    // check for maximum amounth of layers
-    int maxcount = int(abs(h1-h2)/p.layer_height);
-    if( maxcount>1 &&  count>maxcount ) count = maxcount;
-    
-    int l1 = vertices.size();
-    int l2 = s.vertices.size();
-    int diff = abs(l1-l2); // difference in vertex count
-    for(int i=1; i<=count; i++){
-      // rows normalized [0,1]
-      float __i = i/float(count+1);
-      
-      Stroke new_stroke = new Stroke();  
-      new_stroke.isFlat = false;           // mark it as !flat, check after creating the vertices 
-      for(int j = 0; j < min(l1, l2)+int(diff*__i); j++) {
-        // cols normalized [0,1] -- to select which coordinate to use
-        float __j = j/float(min(l1, l2)+int(diff*__i)); 
-        
-        PVector p1 = vertices.get(int(__j*l1));
-        PVector p2 = s.vertices.get(int(__j*l2));
-        
-        PVector v = PVector.add(PVector.mult(p1,__i), PVector.mult(p2,(1-__i)));
-        
-        // snap z coordinate to closes layer
-        v.z = round(v.z/p.layer_height) * p.layer_height;
-        
-        new_stroke.AddVertex(v.x,v.y,v.z);
-      }
-      new_stroke.UpdateIsFlat(); // update flatness
-      p.strokes.add(new_stroke);
-    }
-  }
-  
-  //
   public float GetHeight() {
     if(isFlat && vertices.size() > 0)
       return vertices.get(0).z; 
@@ -181,9 +128,23 @@ class Stroke {
       sum_z += og_z;
       
       float avg_z = sum_z/(i+1);
-      println(i, og_z, avg_z, abs(og_z-avg_z), p.layer_height);
+      //println(i, og_z, avg_z, abs(og_z-avg_z), p.layer_height);
       if(abs(og_z-avg_z) > p.layer_height) {flag = false;break;}
     }
     this.isFlat = flag;
   }
 }
+
+// sorting the strokes in ascending order based on z positions
+class SortbyLayerHeight implements Comparator<Stroke> 
+{ 
+    public int compare(Stroke a, Stroke b) 
+    { 
+       if(a.GetHeight() > b.GetHeight())
+         return 1;
+       else if(a.GetHeight() == b.GetHeight())
+         return 0;
+       else
+         return -1;
+    } 
+} 

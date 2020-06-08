@@ -21,18 +21,18 @@ void InitOSC(int listen_port,
 
 // 
 // Send message to remote location
-void SendMessage(String name, float x, float y, float z) {
-  /* in the following different ways of creating osc messages are shown by example */
-  OscMessage myMessage = new OscMessage(name);
-  myMessage.add(x);
-  myMessage.add(y);
-  myMessage.add(z);
+//void SendMessage(String name, float x, float y, float z) {
+//  /* in the following different ways of creating osc messages are shown by example */
+//  OscMessage myMessage = new OscMessage(name);
+//  myMessage.add(x);
+//  myMessage.add(y);
+//  myMessage.add(z);
 
-  /* send the message */
-  oscP5.send(myMessage, myRemoteLocation); 
+//  /* send the message */
+//  oscP5.send(myMessage, myRemoteLocation); 
   
-  PrintManager("Message sent=["+x+", "+y+", "+z+"]", 2);
-}
+//  PrintManager("Message sent=["+x+", "+y+", "+z+"]", 2);
+//}
 void SendMessage(String name, float x, float y, float z, float speed) {
   /* in the following different ways of creating osc messages are shown by example */
   OscMessage myMessage = new OscMessage(name);
@@ -44,13 +44,13 @@ void SendMessage(String name, float x, float y, float z, float speed) {
   /* send the message */
   oscP5.send(myMessage, myRemoteLocation); 
   
-  PrintManager("Message sent=["+x+", "+y+", "+z+", "+speed+"]", 2);
+  //PrintManager("Message sent=["+x+", "+y+", "+z+", "+speed+"]", 2);
 }
 void SendMessage(String name) {
   OscMessage myMessage = new OscMessage(name);
   oscP5.send(myMessage, myRemoteLocation); 
   
-  PrintManager(name+" sent", 2);
+  //PrintManager(name+" sent", 2);
 }
 
 //

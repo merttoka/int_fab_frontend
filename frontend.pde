@@ -1,5 +1,3 @@
-//
-color background = color(30);
 
 //
 Printer p;

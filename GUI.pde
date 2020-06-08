@@ -12,9 +12,15 @@ Textlabel printmodelabel;
 Textfield tweencount;
 
 //
+int tx,ty; 
+
+//
 void InitGUI() {
   cp5 = new ControlP5(this);
   cp5.setAutoDraw(false);
+  
+  tx = width-150;
+  ty = height-400;
   
   // initializes individual GUI view
   AddViews();
@@ -26,8 +32,11 @@ void DrawGUI() {
   pushStyle();
   cam.beginHUD();
   noStroke();
+  pushMatrix();
+  translate(tx, ty);
   fill(0, 150);
-  rect(0, 0, 70,160);
+  rect(0, 0, 125,375);
+  popMatrix();
   cp5.draw();
   cam.endHUD();
   popStyle();
@@ -40,37 +49,37 @@ void controlEvent(ControlEvent theEvent) {
 }
 
 // 
-void AddViews() {
+void AddViews() {  
   //
   cp5.addButton("move_up")
-   .setPosition(10,10)
+   .setPosition(tx+10,ty+10)
    .setSize(50,50);
   layerlabel = cp5.addTextlabel("layer_height")
    .setText(GetLayerLabelText())
-   .setPosition(7,75);
+   .setPosition(tx+7,ty+75);
   cp5.addButton("move_down")
-   .setPosition(10,100)
+   .setPosition(tx+63,ty+10)
    .setSize(50,50);
   
   //
   tweencount = cp5.addTextfield("tween_count")
-    .setPosition(10, 180)
-    .setSize(50,20);
+    .setPosition(tx+10, ty+100)
+    .setSize(100,20);
   
   cp5.addButton("_selected")
-   .setPosition(10,250)
+   .setPosition(tx+10,ty+160)
    .setSize(50,50);
   cp5.addButton("_stroke")
-   .setPosition(63,250) 
+   .setPosition(tx+63,ty+160) 
    .setSize(50,50);
   
   printmodelabel = cp5.addTextlabel("print_mode_label")
-   .setPosition(5, 310)
+   .setPosition(tx+5, ty+220)
    .setSize(100,50)
    .setText(GetPrintingModeText());
    
   cp5.addButton("PRINT")
-   .setPosition(10,380)
+   .setPosition(tx+10,ty+310)
    .setSize(100,50); 
 }
 
@@ -100,6 +109,12 @@ public void _selected(int _) {
 }
 public void PRINT(int _) { 
   // print selected curves
+  ArrayList<Stroke> selected = new ArrayList<Stroke>();
+  for(int i=0; i<selected_strokes.size(); i++) selected.add(p.sm.strokes.get(selected_strokes.get(i)));
+  
+  // send it to print thread
+  sender = new PrintSender(selected); 
+  sender.start();
 }
 
 //  GUI Utils

@@ -16,7 +16,7 @@ CameraState topView;
 void InitCamera() {
   cam = new PeasyCam(this, 500);
   cam.setResetOnDoubleClick(false);
-  
+  cam.setMinimumDistance(0.5);
   // middle of the bed for look at
   float x =  0.5 * b2w(bed_size);
   float y = -0.5 * b2w(bed_size); //(flip-y manually)
