@@ -40,7 +40,7 @@ class Printer {
   // 
   float rate_first_layer = 600;
   float rate_normal = 800;
-  float rate_high = 1500; 
+  float rate_high = 3000; 
   
   //
   StrokeManager sm = new StrokeManager();
@@ -95,7 +95,7 @@ class Printer {
     sm.DrawAll();
     
     //
-    // draw nozzle ??? 
+    // draw nozzle
     stroke(0, 200, 200, 150);
     line(b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z), 
          b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z+40));

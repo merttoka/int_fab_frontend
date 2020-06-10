@@ -78,6 +78,9 @@ public class PrintSender extends Thread {
         sum += prev.dist(point); 
       }
       
+      // update nozzle_pos
+      p.nozzle_pos = point;
+      
       // last vertex -> move and extrude
       if(i==0) {
         SendMessage("/move", point.x, point.y, point.z, p.rate_high);
@@ -97,8 +100,8 @@ public class PrintSender extends Thread {
       
       // 1 second = rate/60 mm/sec 
       // sleep for one second in each "int(rate/60*1.2)" mm
-      if(sum > int(rate/60))  {
-        sum -= int(rate/60);
+      if(sum > int(rate/60*1.05))  {
+        sum -= int(rate/60*1.05);
         Thread.sleep(1000);
       }
       else Thread.sleep(50);

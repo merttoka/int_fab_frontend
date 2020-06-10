@@ -130,23 +130,18 @@ class Stroke {
   
   //
   private void addBBox(PVector min, PVector max) {
-    // swap if necessary
-    if(min.mag()>max.mag())  {
-      PVector t = max.copy();
-      max = min;
-      min = t;
-    }
     PVector p1 = min.copy(), p2 = max.copy();
+    min = _min(p1,p2);
+    max = _max(p1,p2);
+    
     PVector line = PVector.sub(max,min);
     float off = p.layer_height; // min_size
     line.z = max(off, line.z);   //z needs less space
-    line.y = max(off*10, line.y);//xy needs more space
-    line.x = max(off*10, line.x);//xy needs more space
+    line.y = max(off*5, line.y);//xy needs more space
+    line.x = max(off*5, line.x);//xy needs more space
     
-    PVector cen = PVector.sub(p2,p2).div(2);
-    p1.sub(cen);
-    p2 = PVector.add(min,line).sub(cen);
-    bb.add(new BBox(p1, p2));
+    max = PVector.add(min,line);
+    bb.add(new BBox(min, max));
   }
   //
   private void UpdateIsFlat() {

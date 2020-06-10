@@ -36,10 +36,10 @@ void InitOSC(int listen_port,
 void SendMessage(String name, float x, float y, float z, float speed) {
   /* in the following different ways of creating osc messages are shown by example */
   OscMessage myMessage = new OscMessage(name);
-  myMessage.add(x);
-  myMessage.add(y);
-  myMessage.add(z);
-  myMessage.add(speed);
+  myMessage.add(nfc(x,2));
+  myMessage.add(nfc(y,2));
+  myMessage.add(nfc(z,2));
+  myMessage.add(nfc(speed,2));
 
   /* send the message */
   oscP5.send(myMessage, myRemoteLocation); 

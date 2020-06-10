@@ -6,12 +6,24 @@ PVector _Z = new PVector(0,0,1);
 
 //
 PVector _min(PVector p0, PVector p1) {
-  if(p0.mag()<p1.mag())    return p0;
-  else                     return p1;
+  PVector p = new PVector(0,0,0);
+  if(p0.x > p1.x) p.x = p1.x;
+  else            p.x = p0.x;
+  if(p0.y > p1.y) p.y = p1.y;
+  else            p.y = p0.y;
+  if(p0.z > p1.z) p.z = p1.z;
+  else            p.z = p0.z;
+  return p;
 }
 PVector _max(PVector p0, PVector p1) {
-  if(p0.mag()>p1.mag())    return p0;
-  else                     return p1;
+  PVector p = new PVector(0,0,0);
+  if(p0.x < p1.x) p.x = p1.x;
+  else            p.x = p0.x;
+  if(p0.y < p1.y) p.y = p1.y;
+  else            p.y = p0.y;
+  if(p0.z < p1.z) p.z = p1.z;
+  else            p.z = p0.z;
+  return p;
 }
 
 // 

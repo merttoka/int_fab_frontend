@@ -54,7 +54,7 @@ class StrokeManager {
     // actual printing if draw mode is immediate
     if(temp != null && __drawMode) (new PrintSender(temp)).start();
     
-    if (temp.vertices.size() == 0) // if its just a click, delete the last stroke
+    if (temp.vertices.size() <= 1) // if its just a click, delete the last stroke
       strokes.remove(strokes.size()-1);  
     temp = null; // release temp
     current_stroke_len = "";
@@ -133,6 +133,7 @@ class StrokeManager {
         //if(IsCloseToCurrentLayer(wc.z))
         if(s.isSelected) selected_count = s.Select(false, selected_count);
         else             selected_count = s.Select(true, selected_count);
+        break;
       }  
     }
     // clear all strokes
