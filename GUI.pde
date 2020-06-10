@@ -109,11 +109,11 @@ public void _selected(int _) {
 }
 public void PRINT(int _) { 
   // print selected curves
-  ArrayList<Stroke> selected = new ArrayList<Stroke>();
-  for(int i=0; i<selected_strokes.size(); i++) selected.add(p.sm.strokes.get(selected_strokes.get(i)));
-  
+  // sort by selection, selected items are in the beginnning
+  Collections.sort(p.sm.strokes, new SortBySelection());
+  List sublist = p.sm.strokes.subList(0, p.sm.selected_count);
   // send it to print thread
-  sender = new PrintSender(selected); 
+  sender = new PrintSender((ArrayList<Stroke>)sublist); 
   sender.start();
 }
 

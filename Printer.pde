@@ -55,19 +55,21 @@ class Printer {
   //
   void Update() {
     UpdateWheelHandler();
-    bb_current.UpdateMax(b2w(bed_size), b2w(bed_size), b2w(current_height));
+    
+    bb_current.UpdateToDrawingHeight(b2w(bed_size), b2w(bed_size), b2w(current_height));
   }
   
   //
   void Draw() {
+    lights();
     pushMatrix();
     DrawGizmo(100, 150, false);
     
     // draw bed
     pushMatrix();
     translate(b2w(bed_size)*0.5, b2w(bed_size)*0.5, -b2w(bed_thickness)*0.5);
-    stroke(30);
-    fill(255);
+    stroke(230);
+    fill(30);
     box(b2w(bed_size),b2w(bed_size),b2w(bed_thickness));
     popMatrix();
     
@@ -76,9 +78,9 @@ class Printer {
     pushStyle();
     hint(DISABLE_DEPTH_TEST);
     translate(0,0,b2w(current_height));
-    stroke(255);
-    if(__isDraw) fill(140, 240, 240, 50);
-    else         noFill();
+    stroke(30, 240, 240);
+    if(__isDraw) fill(40, 240, 240, 50);
+    else         fill(30, 0, 240, 20);
     rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
     hint(ENABLE_DEPTH_TEST);
     popStyle();

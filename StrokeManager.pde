@@ -4,7 +4,10 @@ class StrokeManager {
   
   //
   ArrayList<Stroke> strokes = new ArrayList<Stroke>();
-   
+  
+  //
+  int selected_count = 0;
+  
   //
   public StrokeManager() {}
   
@@ -15,9 +18,11 @@ class StrokeManager {
     for(int i=0; i < strokes.size(); i++) {
       Stroke s = strokes.get(i);  
       float h = s.GetHeight(); // returns 0 when !isFlat
-      s.c = color(hue(s.c), saturation(s.c), brightness(s.c), (IsCloseToCurrentLayer(h) ? 255 : 50));
+      if(!s.isSelected) s.c = color(s.col_fil, (IsCloseToCurrentLayer(h) ? 255 : 50));
+      else              s.c = color(selected_color, (IsCloseToCurrentLayer(h) ? 255 : 100));
       s.stroke_weight = CameraDistanceScaleDown();
       s.Draw();
+      if(__isDebug) for(int j=0; j<s.bb.size(); j++) s.bb.get(j).Draw();
     }
     hint(DISABLE_STROKE_PERSPECTIVE);
     popStyle();
@@ -25,24 +30,19 @@ class StrokeManager {
   
   ////////////////
   //
-  public void ClearStroke(int id) {
-    if(strokes.size() > id) {
-      if(selected_strokes.hasValue(id))
-        selected_strokes.removeValue(id);
-      strokes.remove(id);
-      
-      // update selected array to match new indices
-      for(int i=0; i<selected_strokes.size();i++) 
-        if(selected_strokes.get(i)>=id) 
-          selected_strokes.set(i, selected_strokes.get(i)-1);  
-    }
-  }  
-  //
   public void ClearSelectedStrokes() {
-    for(int i=0; i<selected_strokes.size(); i++) {
-      ClearStroke(selected_strokes.get(i));
+    // sort by selection, selected items are in the beginnning
+    Collections.sort(strokes, new SortBySelection());
+    println(strokes.get(0).isSelected, strokes.get(strokes.size()-1).isSelected);
+    println(strokes.size());
+    
+    //List removed = new ArrayList(sublist); 
+    while(selected_count>0) {
+      strokes.remove(0);
+      selected_count--;
     }
-    println(selected_strokes.size(), strokes.size());
+
+    println(strokes.size());
   }
   
   // BRUSH STROKE FUNCTIONS
@@ -106,7 +106,8 @@ class StrokeManager {
       float __i = i/float(count+1);
       
       Stroke new_stroke = new Stroke();  
-      new_stroke.isFlat = false;           // mark it as !flat, check after creating the vertices 
+      new_stroke.isFlat = false;                // mark it as !flat, check after creating the vertices
+      
       for(int j = 0; j < min(l1, l2)+int(diff*__i); j++) {
         // cols normalized [0,1] -- to select which coordinate to use
         float __j = j/float(min(l1, l2)+int(diff*__i)); 
@@ -121,11 +122,9 @@ class StrokeManager {
         
         new_stroke.AddVertex(v.x,v.y,v.z);
       }
-      new_stroke.UpdateIsFlat(); // update flatness
+      new_stroke.UpdateIsFlat();                // update flatness
+      selected_count = new_stroke.Select(true, selected_count);  // mark it selected after interpolation
       strokes.add(new_stroke);
-       
-      // TODO: remove this later
-      AddSelection(strokes.indexOf(new_stroke), new_stroke);
     }
   }
   
@@ -135,7 +134,7 @@ class StrokeManager {
   //
   // Updates the selected strokes on click
   private int fail_count = 0;
-  private int fail_count_max = 3;
+  private int fail_count_max = 2;
   public void UpdateStrokeSelection() {
     for(int i=0; i<strokes.size();i++) {
       Stroke s = strokes.get(i);
@@ -144,7 +143,9 @@ class StrokeManager {
       if (wc!=null) {
         fail_count=0;
         
-        AddSelection(i, s);
+        //if(IsCloseToCurrentLayer(wc.z))
+        if(s.isSelected) selected_count = s.Select(false, selected_count);
+        else             selected_count = s.Select(true, selected_count);
       }  
     }
     // clear all strokes
@@ -152,29 +153,10 @@ class StrokeManager {
     else                            {ClearSelection(); fail_count=0;}
   }
   public void ClearSelection() {
-    selected_strokes.clear();
-    //update colors
-    for(int i=0; i<strokes.size();i++)   strokes.get(i).c = material_color;
+    for(int i=0; i<strokes.size();i++)   selected_count = strokes.get(i).Select(false, selected_count);
   }
   public void SelectAll() {
-    for(int i=0; i<strokes.size();i++) AddSelection(i, strokes.get(i));
-  }
-  public void AddSelection(int i, Stroke s) {
-    // if already selected
-    if (!selected_strokes.hasValue(i)) {
-      selected_strokes.append(i);
-      s.c = selected_color;
-      return;
-    }
-    // if not, delete the selection on shift click
-    else {
-      // double check to guard for sync callbacks 
-      if(selected_strokes.hasValue(i)) {
-        selected_strokes.removeValue(i);
-        s.c = material_color;
-        return;
-      }     
-    }
+    for(int i=0; i<strokes.size();i++)   selected_count = strokes.get(i).Select(true, selected_count);
   }
   ////////////////////////////////
   

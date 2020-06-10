@@ -20,7 +20,7 @@ void setup() {
 }
 
 void draw() {
-  background(background); 
+  background(background);  
   scale(1,-1,1);                             // flip-y
   select.captureViewMatrix((PGraphics3D)g);  // feed selection object with viewmatrix
   

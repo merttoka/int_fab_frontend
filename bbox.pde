@@ -12,14 +12,8 @@ class BBox
     this.B2 = max;
     this.C = new PVector((max.x-min.x)/2, (max.y-min.y)/2, (max.z-min.z)/2);
   }
-  BBox(PVector min, PVector max, PVector cen){
-    this.B1 = min;
-    this.B2 = max;
-    this.C = cen;
-  }
-  
   // Update max
-  public void UpdateMax(float x, float y, float z) {
+  public void UpdateToDrawingHeight(float x, float y, float z) {
     this.B2.x = x;
     this.B2.y = y;
     this.B2.z = z;
@@ -31,6 +25,21 @@ class BBox
     this.C.x = (B2.x-B1.x)/2;
     this.C.y = (B2.y-B1.y)/2;
     this.C.z = (B2.z-B1.z)/2;
+  }
+  
+  public void Draw() {
+    PVector diff = PVector.sub(B2,B1);
+    
+    pushMatrix();
+    pushStyle();
+    noFill();
+    strokeWeight(1);
+    stroke(235);
+    translate(this.B1.x, this.B1.y, this.B1.z);
+    translate(this.C.x, this.C.y, this.C.z);
+    box(diff.x, diff.y, diff.z);
+    popStyle();
+    popMatrix();
   }
   
   // returns true if line (L1, L2) intersects with the box (B1, B2)

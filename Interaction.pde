@@ -1,34 +1,35 @@
 // MOUSE CONTROLS
 // 
-IntList selected_strokes = new IntList();
 int tween_c = -1; // -1 draws maximum amount of layers, otherwise start with 1
 void mousePressed() { 
-  if(mouseButton == LEFT && __isDraw) {
+  if(mouseButton == LEFT && __isDraw && !__isShiftDown) {
     p.sm.StartStroke();
   }
-  if(mouseButton == LEFT && !__isDraw && __isShiftDown) {
+  if(mouseButton == LEFT && __isShiftDown) {
+    
     //UpdateStrokeSelection();
   }
 }
 void mouseDragged() {
-  if(mouseButton == LEFT && __isDraw) {
-    p.sm.CollectStroke();
+  if(mouseButton == LEFT && __isDraw && !__isShiftDown) {
+    p.sm.CollectStroke(); 
   }
   if(mouseButton == LEFT && !__isDraw && __isShiftDown) {
     //UpdateStrokeSelection();
   }
 }
 void mouseReleased() {
-  if(mouseButton == LEFT && __isDraw) {
+  if(mouseButton == LEFT && __isDraw && !__isShiftDown) {
     p.sm.EndStroke();
   }
-  if(mouseButton == LEFT && !__isDraw && __isShiftDown) {
+  if(mouseButton == LEFT && __isShiftDown) {
     p.sm.UpdateStrokeSelection();
   }
 }
 
 // KEYBOARD CONTROLS
 //
+boolean __isDebug = false;
 boolean __isDraw = false;
 boolean __isShiftDown = false;
 boolean __drawMode = false; // will be int later
@@ -64,10 +65,13 @@ void keyPressed(KeyEvent e) {
   
   // interpolate
   if(key == 'i') {
-    if(selected_strokes.size() >= 2) {
-      int l = selected_strokes.size();
-      Stroke s1 = p.sm.strokes.get(selected_strokes.get(l-1));
-      Stroke s2 = p.sm.strokes.get(selected_strokes.get(l-2));
+    if(p.sm.selected_count >= 2) {
+      
+      // sort by selection, selected items are in the beginnning
+      Collections.sort(p.sm.strokes, new SortBySelection());
+      
+      Stroke s1 = p.sm.strokes.get(0);
+      Stroke s2 = p.sm.strokes.get(1);
       
       // interpolates between two lines
       p.sm.Interpolate(s1, s2, tween_c); 
@@ -86,6 +90,9 @@ void keyPressed(KeyEvent e) {
   
   if(key == 's' || key == 'S') {
     if(sender != null)  sender.interrupt();
+  }
+  if(key == 'd' || key == 'D') {
+    __isDebug = !__isDebug;
   }
   
 }

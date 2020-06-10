@@ -34,7 +34,7 @@ The program starts with an empty canvas representing 3D printer bed. Mouse drag 
 - [ ] Align with the previous layer
 - [ ] Infill
 - [ ] Copy/Paste strokes
-- [ ] G-Code Loader
+- [ ] SVG/G-Code Loader
 - [ ] Translate/Rotate strokes (3D printing)
 - [ ] Nozzle collusion calculation (3D printing)
 - [ ] Better UI

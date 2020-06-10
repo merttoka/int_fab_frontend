@@ -16,7 +16,8 @@ class Stroke {
   PShape shape;
   
   // rendering
-  color c = material_color;
+  color c = material_color; // draw color
+  color col_fil = material_color; // material color, dont edit
   float stroke_weight = 4;
   
   // stroke length in mm
@@ -25,6 +26,7 @@ class Stroke {
   // 
   boolean isClosed = false;
   boolean isFlat = true;
+  boolean isSelected = false;
   
   //
   public Stroke() {
@@ -81,10 +83,17 @@ class Stroke {
   public void Draw() {
     shape.setStroke(c);
     shape.setStrokeWeight(stroke_weight);
-    if(isClosed) shape.setFill(c);
     shape(this.shape, 0, 0);
   }
   
+  public int Select(boolean s, int sel_count) {
+    if((this.isSelected && !s) || (!this.isSelected && s)) {
+      this.isSelected = s;
+      if(s) sel_count++;
+      else  sel_count--;
+    }
+    return constrain(sel_count, 0, p.sm.strokes.size());
+  }
   //
   public PVector IsMouseHit() {
     if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
@@ -108,14 +117,22 @@ class Stroke {
   
   //
   private void addBBox(PVector min, PVector max) {
+    // swap if necessary
+    if(min.mag()>max.mag())  {
+      PVector t = max.copy();
+      max = min;
+      min = t;
+    }
     PVector p1 = min.copy(), p2 = max.copy();
     PVector line = PVector.sub(max,min);
-    float off = 10; // px
-    line.z = max(off, line.z);
-    line.y = max(off, line.y);
-    line.x = max(off, line.x);
+    float off = p.layer_height; // min_size
+    line.z = max(off, line.z);   //z needs less space
+    line.y = max(off*10, line.y);//xy needs more space
+    line.x = max(off*10, line.x);//xy needs more space
     
-    p2 = PVector.add(min,line);
+    PVector cen = PVector.sub(p2,p2).div(2);
+    p1.sub(cen);
+    p2 = PVector.add(min,line).sub(cen);
     bb.add(new BBox(p1, p2));
   }
   //
@@ -147,5 +164,19 @@ class SortbyLayerHeight implements Comparator<Stroke>
          return 0;
        else
          return -1;
+    } 
+} 
+
+// sorting the strokes in ascending order based on z positions
+class SortBySelection implements Comparator<Stroke> 
+{ 
+    public int compare(Stroke a, Stroke b) 
+    { 
+       if(a.isSelected && !b.isSelected)
+         return -1;
+       else if(!a.isSelected && b.isSelected)
+         return 1;
+       else // ((a.isSelected && b.isSelected) || (!a.isSelected && !b.isSelected))
+         return 0;
     } 
 } 

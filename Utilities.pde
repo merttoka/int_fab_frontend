@@ -49,7 +49,7 @@ void DrawMouseCursor() {
         pushStyle();
         translate(hit.x, hit.y, hit.z);
         noStroke();
-        fill(0, 150);
+        fill(235, 150);
         float r = CameraDistanceScaleDown()*3*b2w(nozzle_radius); 
         ellipse(0,0,r,r);
         popStyle();
