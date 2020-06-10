@@ -23,6 +23,19 @@ class StrokeManager {
       s.stroke_weight = CameraDistanceScaleDown();
       s.Draw();
       if(__isDebug) for(int j=0; j<s.bb.size(); j++) s.bb.get(j).Draw();
+      
+      // draw the direction indicator dot
+      if(s.vertices.size() > 1) { 
+        PVector t = PVector.mult((s.vertices.get(s.vertices.size()-1)), b2w(1));
+        float r= CameraDistanceScaleDown();
+        pushMatrix(); pushStyle();
+        translate(t.x, t.y, t.z);
+        sphereDetail(4);
+        noStroke();
+        fill(s.c);
+        sphere(r);
+        popStyle(); popMatrix();
+      }
     }
     hint(DISABLE_STROKE_PERSPECTIVE);
     popStyle();
@@ -45,7 +58,7 @@ class StrokeManager {
       current_stroke_len = nfc(s.length, 2)+" mm";
       PVector wc = p.MousePointInWorldCoordinates();
       if (wc!=null && !s.isClosed) {
-        s.AddVertex(w2b(wc.x), w2b(wc.y), p.current_height);        
+        s.AddVertex(w2b(wc.x), w2b(wc.y), p.current_height);
       }
     }
   }
@@ -153,6 +166,7 @@ class StrokeManager {
           PVector _d = strokes.get(i).shape.getVertex(j); //in world coords
           PVector _d0 = PVector.sub(_d,d0);
           PVector _d1 = PVector.sub(_d,d1);
+          // if the vertex is in +++ region relative to min point, and in --- relative to max point
           if(PVector.dot(_d0, _X)>=0 && PVector.dot(_d0, _Y)>=0 && PVector.dot(_d0, _Z)>=0 &&
              PVector.dot(_d1, _X)<=0 && PVector.dot(_d1, _Y)<=0 && PVector.dot(_d1, _Z)<=0) {
             selected_count=strokes.get(i).Select(true, selected_count);

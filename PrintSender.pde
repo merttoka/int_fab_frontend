@@ -79,7 +79,7 @@ public class PrintSender extends Thread {
       }
       
       // update nozzle_pos
-      p.nozzle_pos = point;
+      p.nozzle_pos_0 = point;
       
       // last vertex -> move and extrude
       if(i==0) {

@@ -39,7 +39,7 @@ void SendMessage(String name, float x, float y, float z, float speed) {
   myMessage.add(nfc(x,2));
   myMessage.add(nfc(y,2));
   myMessage.add(nfc(z,2));
-  myMessage.add(nfc(speed,2));
+  myMessage.add(speed);
 
   /* send the message */
   oscP5.send(myMessage, myRemoteLocation); 

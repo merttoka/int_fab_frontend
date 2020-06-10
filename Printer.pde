@@ -21,7 +21,7 @@ class Printer {
   
   // Printer limits xy
   float max_xy = safe_bed_size, min_xy = 0;
-  float max_z = 240,  min_z  = 0.4;
+  float max_z = 240,  min_z  = 0.3;
   
   //
   float layer_height = 0.3;
@@ -30,6 +30,7 @@ class Printer {
   BBox bb_current;
   float current_height = layer_height;
   PVector nozzle_pos = new PVector(0,0,0);
+  PVector nozzle_pos_0 = new PVector(0,0,0);
   
   // 
   float bed_temp = 0;
@@ -61,7 +62,6 @@ class Printer {
   
   //
   void Draw() {
-    lights();
     pushMatrix();
     DrawGizmo(b2w(bed_size), 150, false);//110*4.35
     
@@ -79,7 +79,7 @@ class Printer {
     hint(DISABLE_DEPTH_TEST);
     translate(0,0,b2w(current_height));
     stroke(30, 240, 240);
-    if(__isDraw) fill(40, 240, 240, 50);
+    if(__isDraw) fill(40, 150, 240, 50);
     else         fill(30, 0, 240, 20);
     rect(-10,-10,20+b2w(bed_size), 20+b2w(bed_size));
     hint(ENABLE_DEPTH_TEST);
@@ -96,10 +96,16 @@ class Printer {
     
     //
     // draw nozzle
+    pushStyle();
+    strokeWeight(2);
     stroke(0, 200, 200, 150);
     line(b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z), 
          b2w(nozzle_pos.x), b2w(nozzle_pos.y), b2w(nozzle_pos.z+40));
-    
+    strokeWeight(1);
+    stroke(0, 200, 200, 50);
+    line(b2w(nozzle_pos_0.x), b2w(nozzle_pos_0.y), b2w(nozzle_pos_0.z), 
+         b2w(nozzle_pos_0.x), b2w(nozzle_pos_0.y), b2w(nozzle_pos_0.z+40));
+    popStyle();
     popMatrix();
   }
   

@@ -53,7 +53,7 @@ class Stroke {
       if(x > s_max.x) s_max.x = x;
       if(y > s_max.y) s_max.y = y;
       if(z > s_max.z) s_max.z = z;
-      shape.vertex(x,y,z);  
+      shape.vertex(x,y,z);
     } 
     shape.endShape();
   }
