@@ -63,7 +63,7 @@ class Printer {
   void Draw() {
     lights();
     pushMatrix();
-    DrawGizmo(100, 150, false);
+    DrawGizmo(b2w(bed_size), 150, false);//110*4.35
     
     // draw bed
     pushMatrix();

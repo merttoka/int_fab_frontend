@@ -28,23 +28,6 @@ class StrokeManager {
     popStyle();
   } 
   
-  ////////////////
-  //
-  public void ClearSelectedStrokes() {
-    // sort by selection, selected items are in the beginnning
-    Collections.sort(strokes, new SortBySelection());
-    println(strokes.get(0).isSelected, strokes.get(strokes.size()-1).isSelected);
-    println(strokes.size());
-    
-    //List removed = new ArrayList(sublist); 
-    while(selected_count>0) {
-      strokes.remove(0);
-      selected_count--;
-    }
-
-    println(strokes.size());
-  }
-  
   // BRUSH STROKE FUNCTIONS
   /////////////////////
   //
@@ -59,8 +42,11 @@ class StrokeManager {
   public void CollectStroke() {
     if(temp != null && strokes.size() >= 1) {
       Stroke s = strokes.get(strokes.size()-1);
+      current_stroke_len = nfc(s.length, 2)+" mm";
       PVector wc = p.MousePointInWorldCoordinates();
-      if (wc!=null && !s.isClosed)   s.AddVertex(w2b(wc.x), w2b(wc.y), p.current_height);
+      if (wc!=null && !s.isClosed) {
+        s.AddVertex(w2b(wc.x), w2b(wc.y), p.current_height);        
+      }
     }
   }
   // onrelease
@@ -71,6 +57,7 @@ class StrokeManager {
     if (temp.vertices.size() == 0) // if its just a click, delete the last stroke
       strokes.remove(strokes.size()-1);  
     temp = null; // release temp
+    current_stroke_len = "";
   }
   ////////////////////////////////////////////// 
   
@@ -152,6 +139,28 @@ class StrokeManager {
     if(fail_count < fail_count_max) fail_count++;
     else                            {ClearSelection(); fail_count=0;}
   }
+  public void SelectBetweenStrokes() {
+    if(selected_count >= 2) {
+      Collections.sort(strokes, new SortBySelection());
+      Stroke s0 = strokes.get(0);
+      Stroke s1 = strokes.get(1);
+      
+      PVector d0 = _min(s0.s_min, s1.s_min), //in world coords
+              d1 = _max(s0.s_max, s1.s_max); //in world coords
+      for(int i=0; i<strokes.size(); i++) {
+        for(int j=0; j<strokes.get(i).shape.getVertexCount(); j++) {
+          PVector _d = strokes.get(i).shape.getVertex(j); //in world coords
+          PVector _d0 = PVector.sub(_d,d0);
+          PVector _d1 = PVector.sub(_d,d1);
+          if(PVector.dot(_d0, _X)>=0 && PVector.dot(_d0, _Y)>=0 && PVector.dot(_d0, _Z)>=0 &&
+             PVector.dot(_d1, _X)<=0 && PVector.dot(_d1, _Y)<=0 && PVector.dot(_d1, _Z)<=0) {
+            selected_count=strokes.get(i).Select(true, selected_count);
+            break;             
+          }
+        }
+      }
+    }
+  }
   public void ClearSelection() {
     for(int i=0; i<strokes.size();i++)   selected_count = strokes.get(i).Select(false, selected_count);
   }
@@ -159,6 +168,23 @@ class StrokeManager {
     for(int i=0; i<strokes.size();i++)   selected_count = strokes.get(i).Select(true, selected_count);
   }
   ////////////////////////////////
+  
+  ////////////////
+  //
+  public void ClearSelectedStrokes() {
+    // sort by selection, selected items are in the beginnning
+    Collections.sort(strokes, new SortBySelection());
+    println(strokes.get(0).isSelected, strokes.get(strokes.size()-1).isSelected);
+    println(strokes.size());
+    
+    //List removed = new ArrayList(sublist); 
+    while(selected_count>0) {
+      strokes.remove(0);
+      selected_count--;
+    }
+
+    println(strokes.size());
+  }
   
   
   ////////////////////////////////////////////////////////////

@@ -23,6 +23,10 @@ class Stroke {
   // stroke length in mm
   float length;
   
+  // store extremes min,max in world coordinates
+  PVector s_min = new PVector(1000,1000,1000), 
+          s_max = new PVector(0,0,0);
+  
   // 
   boolean isClosed = false;
   boolean isFlat = true;
@@ -31,6 +35,7 @@ class Stroke {
   //
   public Stroke() {
     shape = createShape();
+    col_fil = cp.getColorValue();
   }
   
   // writes vertices into PShape in world coordinates 
@@ -41,9 +46,23 @@ class Stroke {
     shape.noFill();
     for(int i=0; i<vertices.size();i++) {
       PVector _p = vertices.get(i);
-      shape.vertex(b2w(_p.x),b2w(_p.y),b2w(_p.z));  
+      float x = b2w(_p.x), y= b2w(_p.y), z=b2w(_p.z);
+      if(x < s_min.x) s_min.x = x;
+      if(y < s_min.y) s_min.y = y;
+      if(z < s_min.z) s_min.z = z;
+      if(x > s_max.x) s_max.x = x;
+      if(y > s_max.y) s_max.y = y;
+      if(z > s_max.z) s_max.z = z;
+      shape.vertex(x,y,z);  
     } 
     shape.endShape();
+  }
+  
+  //
+  public void Draw() {
+    shape.setStroke(c);
+    shape.setStrokeWeight(stroke_weight);
+    shape(this.shape, 0, 0);
   }
   
   // stores point in bed coordinates
@@ -63,7 +82,7 @@ class Stroke {
         // add selectable boundary after scaling to world coordinates
         addBBox(PVector.mult(prev,b2w(1)), PVector.mult(pos,b2w(1)));
       }
-      else if(vertices.size() > 10 && first.dist(pos) <= smooth_distance) { // if its close to first vertex, close the curve
+      else if(vertices.size() > 3 && first.dist(pos) <= smooth_distance) { // if its close to first vertex, close the curve
         this.isClosed = true;
         this.length += first.dist(pos);
         
@@ -80,12 +99,6 @@ class Stroke {
   }
   
   //
-  public void Draw() {
-    shape.setStroke(c);
-    shape.setStrokeWeight(stroke_weight);
-    shape(this.shape, 0, 0);
-  }
-  
   public int Select(boolean s, int sel_count) {
     if((this.isSelected && !s) || (!this.isSelected && s)) {
       this.isSelected = s;

@@ -9,6 +9,8 @@ public void settings() {
 void setup() {    
   colorMode(HSB);
   smooth();
+  PFont myFont = createFont("Arial", 32);
+  textFont(myFont);
   
   //
   p = new Printer();

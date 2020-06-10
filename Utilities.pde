@@ -1,4 +1,18 @@
 
+//
+PVector _X = new PVector(1,0,0);
+PVector _Y = new PVector(0,1,0);
+PVector _Z = new PVector(0,0,1);
+
+//
+PVector _min(PVector p0, PVector p1) {
+  if(p0.mag()<p1.mag())    return p0;
+  else                     return p1;
+}
+PVector _max(PVector p0, PVector p1) {
+  if(p0.mag()>p1.mag())    return p0;
+  else                     return p1;
+}
 
 // 
 float stepMap(float val, float min0, float max0, float min1, float max1) {
@@ -40,22 +54,23 @@ void PrintManager(String message, int level) {
 //
 // on current_height
 void DrawMouseCursor() {
-  if(!__isShiftDown) {
-    if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
-      PVector hit = new PVector();
-      if (p.bb_current.CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
-        // hit is in world coordinates
-        pushMatrix();
-        pushStyle();
-        translate(hit.x, hit.y, hit.z);
-        noStroke();
-        fill(235, 150);
-        float r = CameraDistanceScaleDown()*3*b2w(nozzle_radius); 
-        ellipse(0,0,r,r);
-        popStyle();
-        popMatrix();
-      }
+  if (select.calculatePickPoints(mouseX, (int)map(mouseY, 0, height, height, 0))) {
+    PVector hit = new PVector();
+    if (p.bb_current.CheckLineBox(select.ptStartPos, select.ptEndPos, hit)) {
+      // hit is in world coordinates
+      pushMatrix();
+      pushStyle();
+      translate(hit.x, hit.y, hit.z);
+      noStroke();
+      if(!__isShiftDown) fill(235, 150);
+      else               fill(selected_color, 150);
+      float r = CameraDistanceScaleDown()*3*b2w(nozzle_radius); 
+      if(!__isShiftDown) ellipse(0,0,r,r);
+      else               rect(-0.5*r, -0.5*r, r, r);
+      popStyle();
+      popMatrix();
     }
+    
   }
 }
 //

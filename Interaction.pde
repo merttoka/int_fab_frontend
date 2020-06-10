@@ -1,7 +1,10 @@
 // MOUSE CONTROLS
 // 
 int tween_c = -1; // -1 draws maximum amount of layers, otherwise start with 1
-void mousePressed() { 
+void mousePressed() {
+  if(!__isShiftDown && !__isDraw)     cam.setLeftDragHandler(rotateHandler);
+  else if(__isShiftDown && !__isDraw) cam.setLeftDragHandler(null);
+  
   if(mouseButton == LEFT && __isDraw && !__isShiftDown) {
     p.sm.StartStroke();
   }
@@ -87,13 +90,16 @@ void keyPressed(KeyEvent e) {
   if(keyCode == 8 || key == 'c') { // backspace or c
     p.sm.ClearSelectedStrokes();
   }
-  
+  if(key == 'q' || key == 'Q') {
+    p.sm.SelectBetweenStrokes();
+  }
   if(key == 's' || key == 'S') {
     if(sender != null)  sender.interrupt();
   }
   if(key == 'd' || key == 'D') {
     __isDebug = !__isDebug;
   }
+  
   
 }
 ////////////////////////////////

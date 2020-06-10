@@ -7,9 +7,13 @@ ControlP5 cp5;
 Textlabel layerlabel;
 Textlabel printmodelabel;
 
+// colorpicker
+ColorPicker cp;
 
 // 
 Textfield tweencount;
+
+String current_stroke_len = "";
 
 //
 int tx,ty; 
@@ -20,7 +24,7 @@ void InitGUI() {
   cp5.setAutoDraw(false);
   
   tx = width-150;
-  ty = height-400;
+  ty = height-450;
   
   // initializes individual GUI view
   AddViews();
@@ -35,9 +39,16 @@ void DrawGUI() {
   pushMatrix();
   translate(tx, ty);
   fill(0, 150);
-  rect(0, 0, 125,375);
+  rect(0, 0, 125, 440);
+  rect(-155, 360, 155, 80);
   popMatrix();
   cp5.draw();
+  translate(25,height-25);
+  fill(30,150);
+  if(current_stroke_len!="") rect(-10, -15, textWidth(current_stroke_len)+10, 20);
+  fill(235);
+  textSize(15);
+  text(current_stroke_len, 0,0);
   cam.endHUD();
   popStyle();
   hint(ENABLE_DEPTH_TEST);
@@ -64,7 +75,10 @@ void AddViews() {
   //
   tweencount = cp5.addTextfield("tween_count")
     .setPosition(tx+10, ty+100)
-    .setSize(100,20);
+    .setSize(30,20);
+  cp5.addButton("interpolate")
+    .setPosition(tx+50, ty+100)
+    .setSize(60,20);
   
   cp5.addButton("_selected")
    .setPosition(tx+10,ty+160)
@@ -81,6 +95,12 @@ void AddViews() {
   cp5.addButton("PRINT")
    .setPosition(tx+10,ty+310)
    .setSize(100,50); 
+  
+  //
+  cp = cp5.addColorPicker("picker")
+          .setPosition(tx-145, ty+370)
+          .setColorValue(color(material_color, 255))
+          ;
 }
 
 //
