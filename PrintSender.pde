@@ -73,6 +73,7 @@ public class PrintSender extends Thread {
     }while(diff > p.layer_height); // wait while the nozzle is traveling
     
     ///// we can start the print
+    
     // then send one vertex and wait for slightly less than the "len / (rate/60) * 1000" miliseconds
     if(length > 0 && vertices.size() > 1) {
       SendMessage("/extrude");
@@ -100,7 +101,7 @@ public class PrintSender extends Thread {
         // 1 second = rate/60 mm/sec 
         // sleep for one second in each "int(rate/60)" mm
         long sleep = (long)(_len/(rate/60) * 1000);
-        Thread.sleep(sleep-1);  
+        Thread.sleep(sleep-1);  // 1ms offset
     }
     println("Stroke: len= "+ length + " mm, speed= " + rate + " mm/min, time= "+ nfc((length/rate)*60.,2)+" seconds");
   } 

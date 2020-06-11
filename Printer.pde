@@ -135,7 +135,7 @@ class Printer {
       cam.setWheelHandler(new PeasyWheelHandler() {
         public void handleWheel(final int wheel) {
           MoveZ(-wheel);
-          layerlabel.setText(GetLayerLabelText());  // update label
+          //layerlabel.setText(GetLayerLabelText());  // update label
         }
       }
       );
