@@ -2,8 +2,12 @@
 // 
 int tween_c = -1; // -1 draws maximum amount of layers, otherwise start with 1
 void mousePressed() {
-  if(!__isShiftDown && !__isDraw)     cam.setLeftDragHandler(rotateHandler);
-  else if(__isShiftDown && !__isDraw) cam.setLeftDragHandler(null);
+  float off = 285; // gui offset
+  if(__isShiftDown || __isDraw || mouseX < off || mouseX > width-off) 
+    cam.setLeftDragHandler(null);
+  else
+    cam.setLeftDragHandler(rotateHandler);
+  
   
   if(mouseButton == LEFT && __isDraw && !__isShiftDown) {
     p.sm.StartStroke();

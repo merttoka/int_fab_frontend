@@ -61,6 +61,7 @@ class Printer {
 
   //
   void Update() {
+    //UpdateClickHandler(); // on mousemove
     UpdateWheelHandler();
 
     bb_current.UpdateToDrawingHeight(b2w(bed_size), b2w(bed_size), b2w(current_height));
@@ -69,7 +70,7 @@ class Printer {
   //
   void Draw() {
     pushMatrix();
-    //DrawGizmo(b2w(bed_size), 150, false);//110*4.35
+    DrawGizmo(b2w(bed_size), 150, false);//110*4.35
 
     // draw bed
     pushMatrix();
@@ -140,6 +141,7 @@ class Printer {
       );
     } else   cam.setWheelHandler(wheelHandler);
   }
+
 
   //
   public PVector MousePointInWorldCoordinates() {

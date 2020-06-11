@@ -23,7 +23,7 @@ void InitGUI() {
   cp5 = new ControlP5(this);
   cp5.setAutoDraw(false);
   
-  tx = width-150;
+  tx = width-140;
   ty = height-450;
   
   // initializes individual GUI view
@@ -43,8 +43,9 @@ void DrawGUI() {
   rect(0, 0, 125, 440);
   rect(-155, 360, 155, 80);
   popMatrix();
-  
+  colorMode(RGB);
   cp5.draw();
+  colorMode(HSB);
   // stroke len counter
   pushMatrix();
   translate(25,height-25);
@@ -61,6 +62,8 @@ void DrawGUI() {
   String sb = "B: "+p.bed_temp+" / "+p.bed_temp_target;
   String sn = "N: "+p.nozzle_temp+" / "+p.nozzle_temp_target;
   
+  pushMatrix();
+  translate(10, 0);
   noStroke();
   fill(0, 150);
   textSize(20);
@@ -85,6 +88,7 @@ void DrawGUI() {
   rect(20, 80, 10, -15);
   fill(235);
   text(sn, 35, 75);
+  popMatrix();
   
   cam.endHUD();
   popStyle(); 

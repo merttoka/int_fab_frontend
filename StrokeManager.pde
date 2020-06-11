@@ -94,7 +94,7 @@ class StrokeManager {
       count = int(min[0]/p.layer_height);
     }
     
-    // check for maximum amounth of layers
+    // check for maximum amount of layers
     int maxcount = int(abs(h1-h2)/p.layer_height);
     if( maxcount>1 &&  count>maxcount ) count = maxcount;
     
@@ -107,6 +107,7 @@ class StrokeManager {
       
       Stroke new_stroke = new Stroke();  
       new_stroke.isFlat = false;                // mark it as !flat, check after creating the vertices
+      new_stroke.col_fil = s0.col_fil;          // use one of the stroke's colors
       
       for(int j = 0; j < min(l1, l2)+int(diff*__i); j++) {
         // cols normalized [0,1] -- to select which coordinate to use
