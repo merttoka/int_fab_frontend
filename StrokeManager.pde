@@ -107,8 +107,8 @@ class StrokeManager {
       
       Stroke new_stroke = new Stroke();  
       new_stroke.isFlat = false;                // mark it as !flat, check after creating the vertices
+      new_stroke.isClosed = (s0.isClosed&&s1.isClosed ? true:false);   // mark it closed if both curves are closed
       new_stroke.col_fil = s0.col_fil;          // use one of the stroke's colors
-      
       for(int j = 0; j < min(l1, l2)+int(diff*__i); j++) {
         // cols normalized [0,1] -- to select which coordinate to use
         float __j = j/float(min(l1, l2)+int(diff*__i)); 

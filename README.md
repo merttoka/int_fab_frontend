@@ -37,7 +37,7 @@ The program starts with an empty canvas representing 3D printer bed. Mouse drag 
 - [ ] SVG/G-Code Loader
 - [ ] Translate/Rotate strokes (3D printing)
 - [ ] Nozzle collusion calculation (3D printing)
-- [ ] Better UI
+- [x] Better UI
 
 
 Dependencies (in `libraries` folder):
