@@ -2,11 +2,17 @@
 // 
 int tween_c = -1; // -1 draws maximum amount of layers, otherwise start with 1
 void mousePressed() {
-  float off = 285; // gui offset
-  if(__isShiftDown || __isDraw || mouseX < off || mouseX > width-off) 
+  float off = 285; // gui offset for disabling rotate handler 
+  if(__isDraw || mouseX < off || mouseX > width-off) {
     cam.setLeftDragHandler(null);
-  else
-    cam.setLeftDragHandler(rotateHandler);
+    //cam.setCenterDragHandler(null);
+    cam.setRightDragHandler(null);
+  }
+  else {
+    cam.setLeftDragHandler(rotateHandler); 
+    //cam.setCenterDragHandler(panHandler);
+    cam.setRightDragHandler(zoomHandler);
+  }
   
   
   if(mouseButton == LEFT && __isDraw && !__isShiftDown) {
@@ -37,7 +43,7 @@ void mouseReleased() {
 // KEYBOARD CONTROLS
 //
 boolean __isDebug = false;
-boolean __isDraw = false;
+boolean __isDraw = true;
 boolean __isShiftDown = false;
 boolean __drawMode = false; // will be int later
 // 0 -> print immediately on stroke finish (true)
@@ -46,12 +52,18 @@ boolean __drawMode = false; // will be int later
 void keyReleased(KeyEvent e) {
   // update Alt key (left and right alt keys are 18 and 19)
   //if(e.getKeyCode() == 18 || e.getKeyCode() == 19) //alt
-  if(e.getKeyCode() == 16) __isShiftDown = false;
+  if(e.getKeyCode() == 16) { 
+    __isShiftDown = false;
+    __isDraw = true;
+  }
 }
 // 
 void keyPressed(KeyEvent e) {
   // update Alt key
-  if(e.isShiftDown()) __isShiftDown = true;
+  if(e.isShiftDown()) {
+    __isShiftDown = true;
+    __isDraw = false;
+  }
   if(e.isControlDown() && e.getKeyCode() == 65) { // ctrl+a
     p.sm.SelectAll();  
   }

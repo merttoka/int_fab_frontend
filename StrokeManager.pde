@@ -67,7 +67,7 @@ class StrokeManager {
     // actual printing if draw mode is immediate
     if(temp != null && __drawMode) (new PrintSender(temp)).start();
     
-    if (temp.vertices.size() <= 1) // if its just a click, delete the last stroke
+    if (temp != null && temp.vertices.size() <= 1) // if its just a click, delete the last stroke
       strokes.remove(strokes.size()-1);  
     temp = null; // release temp
     current_stroke_len = "";
