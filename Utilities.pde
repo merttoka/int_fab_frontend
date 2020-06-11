@@ -85,18 +85,19 @@ void DrawMouseCursor() {
     
   }
 }
+
 //
 // Draws the X,Y,Z lines with R,G,B respectively
 void DrawGizmo(float scale, float alpha, boolean drawPlanes) {
   pushStyle();
 
   colorMode(HSB);
-  float planeScale = scale * 0.6;
+  float planeScale = scale * 0.01;
   float planeOpacity = alpha*0.5;  
   rectMode(CORNER);
   strokeWeight(5);
   pushMatrix();
-  
+  translate(0,0,b2w(p.layer_height)*0.5); //draw high 
   // xy plane
   if(drawPlanes){
     noStroke();

@@ -35,6 +35,7 @@ void DrawGUI() {
   hint(DISABLE_DEPTH_TEST);
   pushStyle();
   cam.beginHUD();
+  // cp5 background
   noStroke();
   pushMatrix();
   translate(tx, ty);
@@ -42,15 +43,51 @@ void DrawGUI() {
   rect(0, 0, 125, 440);
   rect(-155, 360, 155, 80);
   popMatrix();
+  
   cp5.draw();
+  // stroke len counter
+  pushMatrix();
   translate(25,height-25);
   fill(30,150);
   if(current_stroke_len!="") rect(-10, -15, textWidth(current_stroke_len)+10, 20);
   fill(235);
   textSize(15);
   text(current_stroke_len, 0,0);
+  popMatrix();
+  
+
+  // background
+  String t = "the Mediator";
+  String sb = "B: "+p.bed_temp+" / "+p.bed_temp_target;
+  String sn = "N: "+p.nozzle_temp+" / "+p.nozzle_temp_target;
+  
+  noStroke();
+  fill(0, 150);
+  textSize(20);
+  rect(10, 10, textWidth(t)+60, 40);
+  textSize(12);
+  rect(10, 50, max(textWidth(sb),textWidth(sn))+45, 40);
+  // connected?
+  noStroke();
+  if(p.isConnected) fill(100, 180, 200);
+  else              fill(0, 0, 150);
+  ellipse(30, 30, 20, 20);
+  fill(235);
+  textSize(20);
+  text(t, 50, 36);
+  // temperatures
+  textSize(12);
+  fill(map(p.bed_temp/p.bed_temp_target, 0, 1, 180, 20), 235, 240); // blue to orange
+  rect(20, 63, 10, -15);
+  fill(235);
+  text(sb, 35, 60);
+  fill(map(p.nozzle_temp/p.nozzle_temp_target, 0, 1, 180, 20), 235, 240); // blue to orange
+  rect(20, 80, 10, -15);
+  fill(235);
+  text(sn, 35, 75);
+  
   cam.endHUD();
-  popStyle();
+  popStyle(); 
   hint(ENABLE_DEPTH_TEST);
 }
 

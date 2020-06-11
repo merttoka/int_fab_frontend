@@ -10,6 +10,9 @@ import netP5.*;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
+void onConnected(int b) {
+  p.isConnected = (b==0?false:true);  
+}
 //
 // Initializes the OscP5
 void InitOSC(int listen_port, 
@@ -17,7 +20,11 @@ void InitOSC(int listen_port,
   oscP5 = new OscP5(this, listen_port);
   
   myRemoteLocation = new NetAddress(send_address, send_port);
-}  
+  
+  oscP5.plug(this, "onConnected", "/PY/connected");
+}
+
+  
 
 // 
 // Send message to remote location
@@ -36,9 +43,9 @@ void InitOSC(int listen_port,
 void SendMessage(String name, float x, float y, float z, float speed) {
   /* in the following different ways of creating osc messages are shown by example */
   OscMessage myMessage = new OscMessage(name);
-  myMessage.add(nfc(x,2));
-  myMessage.add(nfc(y,2));
-  myMessage.add(nfc(z,2));
+  myMessage.add(nfc(x,3));
+  myMessage.add(nfc(y,3));
+  myMessage.add(nfc(z,3));
   myMessage.add(speed);
 
   /* send the message */

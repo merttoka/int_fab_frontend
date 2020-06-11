@@ -26,10 +26,6 @@ void draw() {
   scale(1,-1,1);                             // flip-y
   select.captureViewMatrix((PGraphics3D)g);  // feed selection object with viewmatrix
   
-  //for(int i = 0; i < p.strokes.size(); i++) {
-  //  println(i, p.strokes.get(i).isFlat, "l="+p.strokes.get(i).length);
-  //}
-    
   // update printer environment variables
   p.Update();
   // draws printer environment

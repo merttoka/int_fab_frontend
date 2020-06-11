@@ -30,7 +30,7 @@ The program starts with an empty canvas representing 3D printer bed. Mouse drag 
 | **cp5.b** \| `print`          	| Print selected strokes                                                                                                      	|
 
 ## Future Work
-- [ ] Select multiple lines
+- [x] Select multiple lines
 - [ ] Align with the previous layer
 - [ ] Infill
 - [ ] Copy/Paste strokes
