@@ -1,13 +1,16 @@
-# Interactive Drawing Interface for Digital Fabrication (Front End)
+# Materializer: Interactive Drawing Interface for Digital Fabrication
 
 ![An example of extruded surfaces](data/images/firstprint.jpg)
 
-[![DEMO](http://img.youtube.com/vi/Vwcu9hx7YE0/0.jpg)](https://youtu.be/Vwcu9hx7YE0)
+![Interface](data/images/wacom.jpg)
+
+
 
 *Materializer* is an interactive drawing system for 3D printing with direct user input. Its drawing interface allows users to sketch freely on 2D surfaces that stack on top of each other and create a 2.5D canvas. This software collects brush stroke information, and sends them to the [Python back-end](https://github.com/merttoka/materializer_backend) to communicate with Ender 3 Pro.
 
 Originally intended to work on iPad using Duet Display but currently it is tuned for keyboard and mouse input.  
 
+[![DEMO](http://img.youtube.com/vi/Vwcu9hx7YE0/0.jpg)](https://youtu.be/Vwcu9hx7YE0)
 
 ## Usage
 The program starts with an empty canvas representing 3D printer bed. Mouse drag will rotate the view 
