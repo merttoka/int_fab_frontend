@@ -36,8 +36,8 @@ The program starts with an empty canvas representing 3D printer bed. Mouse drag 
 - [ ] Infill
 - [ ] Translate/Rotate strokes (3D printing)
 - [ ] Nozzle collusion calculation (3D printing)
+- [x] Print scheduler
 - [x] Select multiple strokes
-- [x] Better UI
 
 
 Dependencies (in `libraries` folder):
