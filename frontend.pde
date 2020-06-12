@@ -3,8 +3,8 @@
 Printer p;
 
 public void settings() {
-  //fullScreen(P3D, 1); // 2388 x 1668
-  size(int(2388*0.5), int(1668*0.5), P3D);  // /
+  fullScreen(P3D, 2); // 2388 x 1668
+  //size(int(2388*0.5), int(1668*0.5), P3D);  // /
 }
 void setup() {    
   colorMode(HSB);

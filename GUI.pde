@@ -55,7 +55,7 @@ void DrawGUI() {
   colorMode(HSB);
   
   // background
-  String t = "the Mediator";
+  String t = "materializer";
   String sb = "B: "+p.bed_temp+" / "+p.bed_temp_target;
   String sn = "N: "+p.nozzle_temp+" / "+p.nozzle_temp_target;
   pushMatrix();
